@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.form {
+    background-color: limegreen;
+    border: 5px solid black;
+    border-radius: 5px;
+    margin: 20px;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+img {
+    max-width: 100%; /* Responsive image */
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+input, select, button {
+    width: 80%; /* Full width for inputs and buttons */
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+label {
+    display: block; /* Labels on separate lines */
+    text-align: left; /* Align text left */
+}
+
+table {
+    width: 100%; /* Full width for table */
+    border-collapse: collapse; /* Collapse borders */
+    border: 5px solid black; /* Border around the table */
+    border-radius: 5px;
+    overflow: hidden;
+    
+    
+}
+
+td {
+    padding: 10px;
+    border: 2px solid black; /* Border around each cell */
+    
+}
+
+button {
+    width: 100%; /* Full width for inputs and buttons */
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+/* Media Query for Mobile Devices */
+@media (max-width: 600px) {
+    table {
+        display: block; /* Make table block for stacking */
+        overflow-x: auto; /* Allow horizontal scrolling */
+        border: none; /* Remove table border in mobile view */
+        border-radius: 0px;
+    }
+
+    tr {
+        display: block; /* Stack rows vertically */
+        margin-bottom: 10px; /* Add space between stacked items */
+        border: 2px solid black; /* Add border around each stacked item */
+        border-radius: 5px; /* Optional: round the corners */
+        padding: 5px; /* Add padding */
+        
+    }
+
+    td {
+        display: flex; /* Flex for easy alignment */
+        justify-content: space-between; /* Space out labels and inputs */
+        padding: 5px; /* Reduce padding for smaller screens */
+        border: none; /* Remove cell borders in mobile view */
+    }
+input[type='checkbox'] {
+        height:15px;
+        width: 15px;
+
+}
+   
+}
+
+/*@media (max-width: 600px) {
+    table {
+        display: block; /* Make table block for stacking */
+/*        overflow-x: auto; /* Allow horizontal scrolling */
+ /*       border: none; /* Remove table border in mobile view */
+ /*   }
+    td {
+        padding: 10px;
+        border: 2px solid black; /* 2px border around each cell */
+ /*   }
+    
+    /* For mobile version */
+/*    td {
+        display: inline-block; /* Change to inline-block for alignment */
+ /*       width: calc(50% - 10px); /* Two cells per row with spacing */
+ /*       padding: 5px; /* Reduce padding for smaller screens */
+ /*       border: none; /* Remove default cell borders */
+/*    }
+    
+    /* Add border every two cells */
+ /*   td:nth-child(2n) {
+        border-bottom: 2px solid black; /* Add right border to every second cell */
+ /*   }
+  /*  
+    tr:last-child td:nth-child(2n) {
+        border-right: none; /* Remove right border from the last row's last cell */
+  /*  }
+    
+    tr {
+        display: flex; /* Use flexbox to stack cells */
+ /*       flex-wrap: wrap; /* Allow wrapping */
+  /*  }

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles.css">
+        <title>Field Service App</title>
+        
+    </head>
+    <body>
+        <form class="form">
+            <img src="Encore.jpg" alt="Encore Logo">
+            <h1>Field Service Report</h1>
+            <div class="medium"></div>
+            <span class="top">
+                <div class="toprow">
+                <label for="Service Representative">Service Representative:<input type="text" id="Service Representative" name="Service Representative"></label>
+                <!--we can autopopulate date if you would like-->
+                <!--do fancy javascript here to start @ todays date-->
+                 <!--ask miguel what is required-->
+                <label class="Date">Date: <input type="date" id="date" name="date"></label>
+                </div>
+                <label for="machine">Machine Type:  <select id="machine" name="machine">
+                    <option value="">Choose One</option>
+                    <option value="RTP">RTP</option>
+                    <option value="TG">TG</option>
+                    <option value="CG">CG</option>
+                    <option value="TCG">TGC</option>
+                    <option value="Skid Mount">Skid Mount</option></select><label for="Machine Number">  
+                        <input type="number" id="Machine Number" name="Machine Number" maxlenght="4" required placeholder="Machine Number"></label>
+                        <h4><u>PERSONNEL IN ATTENDANCE</u></h4>
+                        <label for="operator">Operator: <input type="text" id="operator" name="operator"></label>
+                        <label for="foreman">Foreman: <input type="text" id="foreman" name="foreman"></label>
+                        <label for="mechanic">Mechanic: <input type="text" id="mechanic" name="mechanic"></label>
+                        <label for="equipment supervisor">Equipment Supervisor: <input type="text" id="equipment supervisor" name="equipment supervisor"></label>
+                        <label for="customer">Customer: <input type="text" id="customer" name="customer"></label>
+                        <label for="gang number">Gang Number: <input type="text" id="gang number" name="customer"></label>
+                        <label for="location">Location: <input type="text" id="location" name="location"></label> 
+                        <table>
+                            <tr class="one">
+                              <td>Engine HRS:</td>
+                              <td>
+                                <label for="engine hrs"><input type="number" id="engine hrs" name="engine hrs"></label>
+                            </td>      
+                              <td>RADIO INSTALLED:</td>
+                              <td>
+                                <label for="radio installed"><input type="checkbox" id="radio installed" name="radio installed"></label>
+                            </td>
+                            </tr>
+                            <tr class="two">
+                                <td>HYDRAULIC SYSTEM OPERATIONAL:</td>
+                                <td>
+                                    <label for="hso"><input type="checkbox" id="hso" name="hso"></label></td>
+                                <td>ENGINE CONDITION:</td>
+                                <td>
+                                    <label for="engine condition"><input type="checkbox" id="engine condition" name="engine condition"></label>
+                                </td>
+                            </tr>
+                            <tr class="three">
+                                <td>ELECTRICAL SYSTEM OPERATIONAL:</td>
+                                <td>
+                                    <label for="eso"><input type="checkbox" id="eso" name="eso"></label>
+                                </td>
+                                <td>TRAVEL LIGHTS, BACK-UP ALARM WORKING:</td>
+                                <td>
+                                    <label for="tlbaw"><input type="checkbox" id="tlbaw" name="tlbaw"></label>
+                                </td>
+                            </tr>
+                            <tr class="four">
+                                <td>CHEMICAL SYSTEM OPERATIONAL:</td>
+                                <td>
+                                    <label for="cso"><input type="checkbox" id="cso" name="cso"></label>
+                                </td>
+                                <td>GPS OPERATIONAL:</td>
+                                <td>
+                                    <label for="gps operational"><input type="checkbox" id="gps operational" name="gps operational"></label>
+                                </td>
+                            </tr>
+                            <tr class="five">
+                                <td>PNUMATIC SYSTEM OPERATIONAL:</td>
+                                <td>
+                                    <label for="pso"><input type="checkbox" id="pso" name="pso"></label>
+                                </td>
+                                <td>GLASS CONDITION:</td>
+                                <td>
+                                    <label for="glass condition"><input type="checkbox" id="glass condition" name="glass condition"></label>
+                                </td>                            
+                            </tr>
+                            <tr class="six">
+                                <td>Machine Equipped With UV System:</td>
+                                <td>
+                                    <label for="uv system"><input type="checkbox" id="uv system" name="uv system"></label>
+                                </td>
+                                <td>AIR CONDITIONING OPERTTIONAL</td>
+                                <td>
+                                    <label for="air"><input type="checkbox" id="air" name="air"></label>
+                                </td>
+                            </tr>
+                            <tr class="seven">
+                                <td>General Appearance of Machine</td>
+                                <td>
+                                    <label for="appearance good">Good<input type="checkbox" id="appearance good" name="apperance good"></label>
+                                    <label for="appearance fair">Fair<input type="checkbox" id="appearance fair" name="appearance fair"></label>
+                                    <label for="appearance bad">Bad<input type="checkbox" id="appearance bad" name="appearance bad"></label>                              
+                                    <label for="appearance comment">Comments:<input type="text" id="appearance comment" name="appearance comment"></label>
+                                </td>
+                                <td>Other Encore Owned Machines in Gang</td>
+                                <td>
+                                    <label for="machines no">No:<input type="checkbox" id="machines no" name="machines no"></label>
+                                    <label for="machines yes">Yes:<input type="checkbox" id="machines yes" name="machines yes"></label>
+                                    <label for="machines list">List them:<input type="text" id="machines list" names="machines list"></label>      
+                                </td>
+                            </tr>
+                            <tr class="eight">
+                                <td>Spare Parts with Machine</td>
+                                <td>
+                                    <label for="parts no">No:<input type="checkbox" id="parts no" name="parts no"></label>
+                                    <label for="parts yes">Yes:<input type="checkbox" id="parts yes" name="parts yes"></label>
+                                    <label for="parts list">List them:<input type="text" id="parts list" names="parts list"></label> 
+                                </td>
+                                <td>Dispensing Valves</td>
+                                <td>
+                                    <label for="black1">Black:<input type="checkbox" id="black1" name="black1"></input></label>
+                                    <label for="silver1">Silver:<input type="checkbox" id="silver1" name="silver1"></input></label>
+                                    <label for="dispv list">List them:<input type="text" id="dispv list" names="dispv list"></label> 
+                                </td>
+                            </tr> 
+                            <tr class="nine">
+                                <td>Safety Appliances Operational IF Applicable (Brakes, Turntable, Bumper Bars, Seat Switches, Crawlers) and their mechanical condition</td>
+                                <td>
+                                    <label for="safety"><input type="checkbox" id="safety" name="safety"></input></label>
+                                    <label for="safety comments">Comments:<input type="text" id="safety" names="safety"></input></label>
+                                </td>
+                                <td>Dispensing Valves</td>
+                                <td>
+                                    <label for="black2">Black:<input type="checkbox" id="black2" name="black2"></label>
+                                    <label for="silver2">Silver:<input type="checkbox" id="silver2" name="silver2"></label>
+                                    <label for="dispv list2">List them:<input type="text" id="dispv list2" names="dispv list2"></label> 
+                                </td>
+                            </tr>
+                            <tr class="ten">
+                                <td colspan="4">
+                                    Reviewed Lubrication and Operation of Machine <label for="lubrication"><input type="checkbox" id="lubrication" name="lubrication"></label>
+                                    <label for="lubracation comments">Comments:<input type="text" id="lubrication comments" name="lubrication comments"></label>
+                                </td>                                  
+                            </tr>
+                            <tr class="eleven">
+                                <td colspan="4">
+                                    Check engine stud shaft/coupling is in working condition
+                                    <label for="engine stud shaft"><input type=checkbox id="engine stud shaft" name="engine stud shaft"></label>
+                                </td>                              
+                            </tr>
+                            <tr class="twelve">
+                                <td colspan="4">
+                                    Visual Inspection: Hyd/Chem Hoses & Elect. Wiring
+                                    <label for="visual inspection"><input type="checkbox" id="visual inspection" name="visual inspection"></label>
+                                    <label for="vi comments">Comments:<input type="textbox" id="vi comments" name="vi comments"></label>
+                                </td>
+                            </tr>
+                            <tr class="thirteen">
+                                <td colspan="4">
+                                    Sheathing on Chemical Hoses (Dispensing Valve to Bundle)
+                                    <label for="chemical hose">No:<input type="checkbox" id="chemial hose" name="chemical hose"></label>
+                                    <label for="chemical hose yes"><input type="checkbox" id="chemical hose yes" name="chemical hose yes"></label>
+                                </td>
+                            </tr>
+                            <tr class="fourteen">
+                                <td colspan="4">
+                                    Chemical Condition (Totes, Pails and Machine)
+                                    <label for="chem cond"><input type="checkbox" id="chem cond" name="chem cond"></label>
+                                    <label for="chem cond comments">Comments:<input type="text" id="chem cond comments" name="chem cond commnets"></label>
+                                </td>
+                            </tr>
+                            <tr class="fifteen">
+                                <td colspan="4">
+                                    Chemical Tote Lid Upgrade (Bottle Cap)
+                                    <label for="lid upgrade"><input type="checkbox" id="lid upgrade" name="lid upgrade"></label>
+                                </td>
+                            </tr>
+                            <tr class="sixteen">
+                                <td colspan="4">
+                                    Chemical Testing Performed
+                                    <label for="testing"><input type="checkbox" id="testing" name="testing"></label>
+                                    <label for="testing comments">Comments:<input type="text" id="testing comments" name="testing commnets"></label>
+                                </td>
+                            </tr>
+                            <tr class="seventeen">
+                                <td colspan="4">
+                                    RTP Crawler service Performed and Dated
+                                    <label for="crawler service"><input type="checkbox" id="crawler service" name="crawler service"></label>
+                                    <label for="crawler comments">Comments:<input type="text" id="crawler comments" name="crawler commnets"></label>
+                                </td>
+                            </tr>
+                            <tr class="eighteen">
+                                <td colspan="4">
+                                    RTP - 700 Series Crawler Bushing Upgrade/check every 3 months
+                                    <label for="crawler bushing">No:<input type="checkbox" id="crawler bushing" name="crawler bushing"></label>
+                                    <label for="crawler bushing yes">Yes:<input type="checkbox" id="crawler bushing yes" name="crawler bushing yes"></label>
+                                    <label for="crawler date">Date Checked:<input type="date" id="crawler date" name="crawler date"></label>
+                                </td>
+                            </tr>
+                            <tr class="nineteen">
+                                <td colspan="4">
+                                    Any Follow-up Required After Service Visit
+                                    <label for="follow up">No:<input type="checkbox" id="follow up" name="follow up"></label>
+                                    <label for="follow up yes">Yes:<input type="checkbox" id="follow up yes" name="follow up yes"></label>
+                                    <label for="needed service">List them:<input type="text" id="needed service" name="needed service"></label>
+                                </td>
+                            </tr>
+                            <tr class="twenty">
+                                <td colspan="4">
+                                    SERVICE DONE ON MACHINE:
+                                    <label for="services done"><input type="text" id="services done" name="services done"></label>
+                                </td>
+                            </tr>
+                            <tr class="twentyone">
+                                <td colspan="4">
+                                    LIST ALL PARTS USED ON MACHINE:
+                                    <label for="parts used"><input type="text" id="parts used" name="parts used"></label>
+                                </td>
+                            </tr>
+                            <tr class="twentytwo">
+                                <td colspan="4">
+                                    Comments:
+                                    <label for="final comments"><input type="text" id="final comments" name="comments"></label>
+                                </td>
+                            </tr>
+                        </table>
+                    </span>
+            <span class="left">
+        
+            <span class="email"><label for="email">Email: <input type="email" id="email" name="email" required></label>
+            </span>
+                            <!--<span class="machinetype"-->
+            
+            
+            </span>
+            </span>
+            <span class="right"></span>
+
+
+
+
+
+
+
+
+
+                <button type="submit">Submit</button>
+
+        </form>
+    
+    </body>
+
+
+
+
+
+</html>
