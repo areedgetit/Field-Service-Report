@@ -1,12 +1,19 @@
-document.querySelectorAll('textarea').forEach(function(node) {
-    node.style.width = '194px'; // Fixed width
-    node.style.overflow = 'hidden'; // Prevent overflow
+document.getElementById('submitBtn').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent the default form submission
 
-    node.oninput = function() {
-        node.style.height = 'auto'; // Reset height to auto to measure scrollHeight
-        node.style.height = (node.scrollHeight) + 'px'; // Set height to scrollHeight
-    };
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('portrait', 'pt', 'a4'); // Use A4 size for better compatibility
 
-    // Initial height adjustment
-    node.style.height = (node.scrollHeight) + 'px';
+    // Collect form data
+    const formData = new FormData(document.querySelector('form'));
+    let yPosition = 20; // Starting Y position
+    const lineHeight = 15; // Line height
+
+    // Loop through form data and add it to the PDF
+    formData.forEach((value, key) => {
+        doc.text(`${key}: ${value}`, 20, yPosition);
+        yPosition += lineHeight; // Move down for the next line
+    });
+
+    doc.save('form-data.pdf');
 });
