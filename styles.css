@@ -66,6 +66,16 @@ input [for='appearance-good'] {
     display:inline-block
 }
 
+p {
+    margin: 5px 0;
+}
+textarea {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+
+}
+
 /* Media Query for Mobile Devices */
 @media (max-width: 600px) {
     table {
