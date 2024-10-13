@@ -10,6 +10,9 @@ body {
     border-radius: 5px;
     margin: 20px;
     padding: 20px;
+    max-width: 750px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 h1 {
@@ -100,12 +103,12 @@ textarea {
         padding: 5px; /* Reduce padding for smaller screens */
         border: none; /* Remove cell borders in mobile view */
     }
-input[type='checkbox'] {
+    input[type='checkbox'] {
         height:15px;
         width: 15px;
 
 
-}
+    }
    
 }
 
