@@ -25,7 +25,7 @@ img {
 }
 
 input, select, button {
-    width: 80%; /* Full width for inputs and buttons */
+    
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ccc;
@@ -43,6 +43,7 @@ table {
     border: 5px solid black; /* Border around the table */
     border-radius: 5px;
     overflow: hidden;
+   
     
     
 }
@@ -59,6 +60,10 @@ button {
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 10px;
+}
+
+input [for='appearance-good'] {
+    display:inline-block
 }
 
 /* Media Query for Mobile Devices */
@@ -80,7 +85,7 @@ button {
     }
 
     td {
-        display: flex; /* Flex for easy alignment */
+        display: block; /* Flex for easy alignment */
         justify-content: space-between; /* Space out labels and inputs */
         padding: 5px; /* Reduce padding for smaller screens */
         border: none; /* Remove cell borders in mobile view */
@@ -88,6 +93,7 @@ button {
 input[type='checkbox'] {
         height:15px;
         width: 15px;
+
 
 }
    
