@@ -1,17 +1,33 @@
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Find the submit button
   const submitBtn = document.getElementById('submitBtn');
 
-  // Add click event listener to the submit button
   submitBtn.addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault();
 
-    // Get the form element
     const form = document.querySelector('form');
 
-    // Calculate the form's aspect ratio
-    const formRect = form.getBoundingClientRect();
-    const aspectRatio = formRect.height / formRect.width;
+    // Get the full height of the form
+    const formHeight = form.scrollHeight;
+    const formWidth = form.offsetWidth;
+
+    // Create a temporary container
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.top = '0';
+    tempContainer.style.left = '0';
+    tempContainer.style.width = formWidth + 'px';
+    tempContainer.style.height = formHeight + 'px';
+    tempContainer.style.overflow = 'hidden';
+    tempContainer.style.pointerEvents = 'none';
+
+    // Clone the form and append it to the temporary container
+    const clonedForm = form.cloneNode(true);
+    tempContainer.appendChild(clonedForm);
+    document.body.appendChild(tempContainer);
+
+    // Calculate aspect ratio
+    const aspectRatio = formHeight / formWidth;
 
     // Set up PDF dimensions
     const { jsPDF } = window.jspdf;
@@ -23,23 +39,25 @@ document.addEventListener('DOMContentLoaded', function() {
       format: [pdfWidth, pdfHeight]
     });
 
-    // Use html2canvas to capture the form as an image
-    html2canvas(form, {
-      scale: 2, // Increase resolution
+    html2canvas(tempContainer, {
+      scale: 2,
       useCORS: true,
       allowTaint: true,
-      scrollY: -window.scrollY, // Adjust for any scrolling
-      windowHeight: document.documentElement.offsetHeight
+      height: formHeight,
+      windowHeight: formHeight
     }).then(canvas => {
-      // Add the captured form image to the PDF
       const imgData = canvas.toDataURL('image/png');
       doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-
-      // Save the PDF
       doc.save('styled-form-data.pdf');
+
+      // Remove the temporary container
+      document.body.removeChild(tempContainer);
     }).catch(error => {
       console.error('Error in html2canvas operation:', error);
       alert('An error occurred while generating the PDF. Please check the console for more details.');
+      
+      // Remove the temporary container in case of error
+      document.body.removeChild(tempContainer);
     });
   });
 });
