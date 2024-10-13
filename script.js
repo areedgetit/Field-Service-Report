@@ -1,19 +1,29 @@
 document.getElementById('submitBtn').addEventListener('click', function(event) {
     event.preventDefault(); // Prevent the default form submission
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('portrait', 'pt', 'a4'); // Use A4 size for better compatibility
+    const element = document.getElementById('myForm'); // Get the form element
 
-    // Collect form data
-    const formData = new FormData(document.querySelector('form'));
-    let yPosition = 20; // Starting Y position
-    const lineHeight = 15; // Line height
+    html2canvas(element).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('portrait', 'pt', 'a4');
 
-    // Loop through form data and add it to the PDF
-    formData.forEach((value, key) => {
-        doc.text(`${key}: ${value}`, 20, yPosition);
-        yPosition += lineHeight; // Move down for the next line
+        const imgWidth = pdf.internal.pageSize.width; // Full width of PDF
+        const pageHeight = pdf.internal.pageSize.height;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+
+        pdf.save('form-data.pdf');
     });
-
-    doc.save('form-data.pdf');
 });
