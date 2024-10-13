@@ -1,16 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
 
-  // Add custom CSS to the page to improve input rendering
+  // Add custom CSS to the page to improve input and select rendering
   const style = document.createElement('style');
   style.textContent = `
-    .pdf-input {
+    .pdf-input, .pdf-select {
       min-height: 30px !important;
       line-height: 30px !important;
       padding: 5px !important;
       margin-bottom: 5px !important;
       border: 1px solid #ccc !important;
       box-sizing: border-box !important;
+    }
+    .pdf-select-value {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: white;
+      padding: 5px;
+      line-height: 30px;
+      pointer-events: none;
     }
   `;
   document.head.appendChild(style);
@@ -21,8 +32,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
 
     // Apply custom class to all input, select, and textarea elements
-    form.querySelectorAll('input, select, textarea').forEach(el => {
+    form.querySelectorAll('input, textarea').forEach(el => {
       el.classList.add('pdf-input');
+    });
+    form.querySelectorAll('select').forEach(el => {
+      el.classList.add('pdf-select');
     });
 
     // Get the full height of the form
@@ -71,6 +85,22 @@ document.addEventListener('DOMContentLoaded', function() {
             el.style.fontSize = '16px';
           }
         });
+        
+        // Handle select elements
+        clonedDoc.querySelectorAll('.pdf-select').forEach(select => {
+          const selectedOption = select.options[select.selectedIndex];
+          const selectedText = selectedOption ? selectedOption.text : '';
+          
+          const valueDisplay = document.createElement('div');
+          valueDisplay.className = 'pdf-select-value';
+          valueDisplay.textContent = selectedText;
+          valueDisplay.style.color = 'black';
+          valueDisplay.style.fontSize = '16px';
+          
+          select.parentNode.insertBefore(valueDisplay, select.nextSibling);
+          select.style.color = 'transparent';
+          select.style.webkitTextFillColor = 'transparent';
+        });
       }
     }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
@@ -80,9 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // Remove the temporary container
       document.body.removeChild(tempContainer);
       
-      // Remove custom class from original form elements
-      form.querySelectorAll('.pdf-input').forEach(el => {
-        el.classList.remove('pdf-input');
+      // Remove custom classes from original form elements
+      form.querySelectorAll('.pdf-input, .pdf-select').forEach(el => {
+        el.classList.remove('pdf-input', 'pdf-select');
       });
     }).catch(error => {
       console.error('Error in html2canvas operation:', error);
@@ -91,9 +121,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // Remove the temporary container in case of error
       document.body.removeChild(tempContainer);
       
-      // Remove custom class from original form elements
-      form.querySelectorAll('.pdf-input').forEach(el => {
-        el.classList.remove('pdf-input');
+      // Remove custom classes from original form elements
+      form.querySelectorAll('.pdf-input, .pdf-select').forEach(el => {
+        el.classList.remove('pdf-input', 'pdf-select');
       });
     });
   });
