@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
 
@@ -10,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get the full height of the form
     const formHeight = form.scrollHeight;
     const formWidth = form.offsetWidth;
+
+    console.log('Form Height:', formHeight, 'Form Width:', formWidth); // Debugging info
 
     // Create a temporary container
     const tempContainer = document.createElement('div');
@@ -43,8 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
       scale: 2,
       useCORS: true,
       allowTaint: true,
-      height: formHeight,
-      windowHeight: formHeight
     }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
       doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
