@@ -6,16 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
   style.textContent = `
     .pdf-input {
       min-height: 30px !important;
-      line-height: 1.5 !important;
+      line-height: 30px !important;
       padding: 5px !important;
       margin-bottom: 5px !important;
       border: 1px solid #ccc !important;
       box-sizing: border-box !important;
-      overflow: hidden !important;
-      resize: none !important;
-      white-space: pre-wrap !important;
-      word-wrap: break-word !important;
-      width: 100% !important;
+      overflow: hidden; /* Prevent scrollbars */
+      resize: none; /* Disable manual resizing */
     }
   `;
   document.head.appendChild(style);
@@ -26,8 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     textareas.forEach(textarea => {
       textarea.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
+        this.style.height = 'auto'; // Reset height to auto
+        this.style.height = this.scrollHeight + 'px'; // Set to scrollHeight
       });
     });
   }
@@ -86,19 +83,11 @@ document.addEventListener('DOMContentLoaded', function() {
         height: formHeight,
         windowHeight: formHeight,
         onclone: function(clonedDoc) {
-          // Ensure text is visible and properly wrapped in cloned inputs
+          // Ensure text is visible in cloned inputs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.value) {
               el.style.color = 'black';
               el.style.fontSize = '16px';
-              el.style.whiteSpace = 'pre-wrap';
-              el.style.wordWrap = 'break-word';
-              
-              // For textareas, set the height to match the scrollHeight
-              if (el.tagName.toLowerCase() === 'textarea') {
-                el.style.height = 'auto';
-                el.style.height = el.scrollHeight + 'px';
-              }
             }
           });
         }
