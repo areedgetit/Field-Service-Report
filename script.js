@@ -61,57 +61,60 @@ document.addEventListener('DOMContentLoaded', function() {
     tempContainer.appendChild(clonedForm);
     document.body.appendChild(tempContainer);
 
-    // Calculate aspect ratio
-    const aspectRatio = formHeight / formWidth;
+    // Delay to ensure everything is rendered properly
+    setTimeout(() => {
+      // Calculate aspect ratio
+      const aspectRatio = formHeight / formWidth;
 
-    // Set up PDF dimensions
-    const { jsPDF } = window.jspdf;
-    const pdfWidth = 210; // A4 width in mm
-    const pdfHeight = pdfWidth * aspectRatio;
-    const doc = new jsPDF({
-      orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
-      unit: 'mm',
-      format: [pdfWidth, pdfHeight]
-    });
+      // Set up PDF dimensions
+      const { jsPDF } = window.jspdf;
+      const pdfWidth = 210; // A4 width in mm
+      const pdfHeight = pdfWidth * aspectRatio;
+      const doc = new jsPDF({
+        orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight]
+      });
 
-    html2canvas(tempContainer, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      height: formHeight,
-      windowHeight: formHeight,
-      onclone: function(clonedDoc) {
-        // Ensure text is visible in cloned inputs
-        clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
-          if (el.value) {
-            el.style.color = 'black';
-            el.style.fontSize = '16px';
-          }
+      html2canvas(tempContainer, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        height: formHeight,
+        windowHeight: formHeight,
+        onclone: function(clonedDoc) {
+          // Ensure text is visible in cloned inputs
+          clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
+            if (el.value) {
+              el.style.color = 'black';
+              el.style.fontSize = '16px';
+            }
+          });
+        }
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        doc.save('styled-form-data.pdf');
+
+        // Remove the temporary container
+        document.body.removeChild(tempContainer);
+        
+        // Remove custom class from original form elements
+        form.querySelectorAll('.pdf-input').forEach(el => {
+          el.classList.remove('pdf-input');
         });
-      }
-    }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-      doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      doc.save('styled-form-data.pdf');
-
-      // Remove the temporary container
-      document.body.removeChild(tempContainer);
-      
-      // Remove custom class from original form elements
-      form.querySelectorAll('.pdf-input').forEach(el => {
-        el.classList.remove('pdf-input');
+      }).catch(error => {
+        console.error('Error in html2canvas operation:', error);
+        alert('An error occurred while generating the PDF. Please check the console for more details.');
+        
+        // Remove the temporary container in case of error
+        document.body.removeChild(tempContainer);
+        
+        // Remove custom class from original form elements
+        form.querySelectorAll('.pdf-input').forEach(el => {
+          el.classList.remove('pdf-input');
+        });
       });
-    }).catch(error => {
-      console.error('Error in html2canvas operation:', error);
-      alert('An error occurred while generating the PDF. Please check the console for more details.');
-      
-      // Remove the temporary container in case of error
-      document.body.removeChild(tempContainer);
-      
-      // Remove custom class from original form elements
-      form.querySelectorAll('.pdf-input').forEach(el => {
-        el.classList.remove('pdf-input');
-      });
-    });
+    }, 100); // Adjust the delay if necessary
   });
 });
