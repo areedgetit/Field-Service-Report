@@ -82,7 +82,12 @@ p {
     line-height: 1.5;
     background-color: #fff;
     overflow-y: auto;
-    max-height: 150px;}
+    max-height: 150px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+
+}
 textarea {
     border: 1px solid #ccc;
     border-radius: 5px;

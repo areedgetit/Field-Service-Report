@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
+  const inputDiv = document.getElementById('input-div');
 
   // Add custom CSS to the page to improve input rendering
   const style = document.createElement('style');
@@ -14,33 +15,48 @@ document.addEventListener('DOMContentLoaded', function() {
       overflow: hidden; /* Prevent scrollbars */
       resize: none; /* Disable manual resizing */
     }
+    #input-div {
+      border: 1px solid #ccc;
+      padding: 5px;
+      min-height: 30px;
+      width: 300px; /* Set a fixed width or use a percentage */
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      line-height: 1.5;
+      max-height: 300px; /* Optional: set a maximum height */
+      overflow-y: auto; /* Add scrollbar if content exceeds max-height */
+    }
   `;
   document.head.appendChild(style);
 
-  // Function to handle contenteditable divs
-  function handleEditableDiv(div) {
-    div.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    });
-
-    div.addEventListener('mousedown', function(e) {
-      e.preventDefault();
-      this.focus();
-    });
+  // Function to adjust height of contenteditable div
+  function adjustHeight() {
+    inputDiv.style.height = 'auto';
+    inputDiv.style.height = inputDiv.scrollHeight + 'px';
   }
 
-  // Initialize contenteditable divs
-  document.querySelectorAll('[contenteditable="true"]').forEach(handleEditableDiv);
+  // Event listeners for contenteditable div
+  inputDiv.addEventListener('input', adjustHeight);
+  inputDiv.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  inputDiv.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    this.focus();
+  });
+
+  // Initial call to set the correct height
+  adjustHeight();
 
   // Function to auto-resize textareas
   function autoResizeTextareas() {
     const textareas = document.querySelectorAll('textarea');
-
     textareas.forEach(textarea => {
       textarea.addEventListener('input', function() {
-        this.style.height = 'auto'; // Reset height to auto
-        this.style.height = this.scrollHeight + 'px'; // Set to scrollHeight
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
       });
     });
   }
@@ -53,8 +69,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const form = document.querySelector('form');
 
-    // Apply custom class to all input, select, and textarea elements
-    form.querySelectorAll('input, select, textarea').forEach(el => {
+    // Apply custom class to all input, select, textarea, and contenteditable elements
+    form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => {
       el.classList.add('pdf-input');
     });
 
@@ -99,9 +115,14 @@ document.addEventListener('DOMContentLoaded', function() {
         height: formHeight,
         windowHeight: formHeight,
         onclone: function(clonedDoc) {
-          // Ensure text is visible in cloned inputs
+          // Ensure text is visible in cloned inputs and contenteditable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
-            if (el.value) {
+            if (el.getAttribute('contenteditable') === 'true') {
+              el.style.color = 'black';
+              el.style.fontSize = '16px';
+              // Ensure the content of the div is preserved
+              el.textContent = el.textContent;
+            } else if (el.value) {
               el.style.color = 'black';
               el.style.fontSize = '16px';
             }
@@ -134,4 +155,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100); // Adjust the delay if necessary
   });
 });
-
