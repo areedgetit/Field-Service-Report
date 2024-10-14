@@ -53,8 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const form = document.querySelector('form');
 
-    // Apply custom class to all input, select, textarea, and contenteditable elements
-    form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => {
+    // Apply custom class to all input, select, and textarea elements
+    form.querySelectorAll('input, select, textarea').forEach(el => {
       el.classList.add('pdf-input');
     });
 
@@ -99,14 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
         height: formHeight,
         windowHeight: formHeight,
         onclone: function(clonedDoc) {
-          // Ensure text is visible in cloned inputs and contenteditable divs
+          // Ensure text is visible in cloned inputs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
-            if (el.getAttribute('contenteditable') === 'true') {
-              el.style.color = 'black';
-              el.style.fontSize = '16px';
-              // Ensure the content of the div is preserved
-              el.textContent = el.textContent;
-            } else if (el.value) {
+            if (el.value) {
               el.style.color = 'black';
               el.style.fontSize = '16px';
             }
@@ -139,3 +134,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100); // Adjust the delay if necessary
   });
 });
+
