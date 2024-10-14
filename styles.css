@@ -72,6 +72,17 @@ input [for='appearance-good'] {
 p {
     margin: 5px 0;
 }
+.editable-div {  border: 1px solid #ccc;
+    padding: 5px;
+    min-height: 30px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.5;
+    background-color: #fff;
+    overflow-y: auto;
+    max-height: 150px;}
 textarea {
     border: 1px solid #ccc;
     border-radius: 5px;

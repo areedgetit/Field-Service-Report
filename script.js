@@ -14,8 +14,35 @@ document.addEventListener('DOMContentLoaded', function() {
       overflow: hidden; /* Prevent scrollbars */
       resize: none; /* Disable manual resizing */
     }
+    .editable-div {
+      border: 1px solid #ccc;
+      padding: 5px;
+      min-height: 30px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: 1.5;
+      background-color: #fff;
+      overflow-y: auto;
+      max-height: 150px; /* Adjust as needed */
+    }
   `;
   document.head.appendChild(style);
+
+  // Function to handle input in editable divs
+  function handleEditableInput(event) {
+    const div = event.target;
+    // Optionally, you can limit the length
+    if (div.textContent.length > 500) { // Example: 500 character limit
+      div.textContent = div.textContent.slice(0, 500);
+    }
+  }
+
+  // Add event listeners to editable divs
+  document.querySelectorAll('.editable-div').forEach(div => {
+    div.addEventListener('input', handleEditableInput);
+  });
 
   // Function to auto-resize textareas
   function autoResizeTextareas() {
@@ -37,8 +64,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const form = document.querySelector('form');
 
-    // Apply custom class to all input, select, and textarea elements
-    form.querySelectorAll('input, select, textarea').forEach(el => {
+    // Apply custom class to all input, select, textarea, and editable div elements
+    form.querySelectorAll('input, select, textarea, .editable-div').forEach(el => {
       el.classList.add('pdf-input');
     });
 
@@ -83,9 +110,14 @@ document.addEventListener('DOMContentLoaded', function() {
         height: formHeight,
         windowHeight: formHeight,
         onclone: function(clonedDoc) {
-          // Ensure text is visible in cloned inputs
+          // Ensure text is visible in cloned inputs and editable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
-            if (el.value) {
+            if (el.tagName.toLowerCase() === 'div') {
+              el.style.color = 'black';
+              el.style.fontSize = '16px';
+              // Ensure the content of the div is preserved
+              el.textContent = el.textContent;
+            } else if (el.value) {
               el.style.color = 'black';
               el.style.fontSize = '16px';
             }
@@ -117,4 +149,13 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }, 100); // Adjust the delay if necessary
   });
+
+  // If you need to get form data (e.g., for form submission)
+  function getFormData(form) {
+    const formData = new FormData(form);
+    form.querySelectorAll('.editable-div').forEach(div => {
+      formData.append(div.dataset.name, div.textContent);
+    });
+    return formData;
+  }
 });
