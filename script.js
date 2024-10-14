@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
 
+<<<<<<< HEAD
   // Add custom CSS to the page to improve input, select, and checkbox rendering
   const style = document.createElement('style');
   style.textContent = `
@@ -52,11 +53,14 @@ document.addEventListener('DOMContentLoaded', function() {
   `;
   document.head.appendChild(style);
 
+=======
+>>>>>>> 6bb624f (another one)
   submitBtn.addEventListener('click', function(event) {
     event.preventDefault();
 
     const form = document.querySelector('form');
 
+<<<<<<< HEAD
     // Apply custom class to all input, select, and textarea elements
     form.querySelectorAll('input:not([type="checkbox"]), textarea').forEach(el => {
       el.classList.add('pdf-input');
@@ -65,9 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
       el.classList.add('pdf-select');
     });
 
+=======
+>>>>>>> 6bb624f (another one)
     // Get the full height of the form
     const formHeight = form.scrollHeight;
     const formWidth = form.offsetWidth;
+
+    console.log('Form Height:', formHeight, 'Form Width:', formWidth); // Debugging info
 
     // Create a temporary container
     const tempContainer = document.createElement('div');
@@ -101,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
       scale: 2,
       useCORS: true,
       allowTaint: true,
+<<<<<<< HEAD
       height: formHeight,
       windowHeight: formHeight,
       onclone: function(clonedDoc) {
@@ -145,6 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
           checkbox.style.display = 'none';
         });
       }
+=======
+>>>>>>> 6bb624f (another one)
     }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
       doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
@@ -152,22 +163,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Remove the temporary container
       document.body.removeChild(tempContainer);
-      
-      // Remove custom classes from original form elements
-      form.querySelectorAll('.pdf-input, .pdf-select').forEach(el => {
-        el.classList.remove('pdf-input', 'pdf-select');
-      });
     }).catch(error => {
       console.error('Error in html2canvas operation:', error);
       alert('An error occurred while generating the PDF. Please check the console for more details.');
       
       // Remove the temporary container in case of error
       document.body.removeChild(tempContainer);
-      
-      // Remove custom classes from original form elements
-      form.querySelectorAll('.pdf-input, .pdf-select').forEach(el => {
-        el.classList.remove('pdf-input', 'pdf-select');
-      });
     });
   });
 });
