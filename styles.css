@@ -75,7 +75,9 @@ p {
 textarea {
     border: 1px solid #ccc;
     border-radius: 5px;
-    resize: vertical;
+    overflow: hidden; /* Prevent scrollbars */
+    resize: none; /* Disable manual resizing */
+    min-height: 30px; /* Set a minimum height */
 
 }
 

@@ -11,9 +11,26 @@ document.addEventListener('DOMContentLoaded', function() {
       margin-bottom: 5px !important;
       border: 1px solid #ccc !important;
       box-sizing: border-box !important;
+      overflow: hidden; /* Prevent scrollbars */
+      resize: none; /* Disable manual resizing */
     }
   `;
   document.head.appendChild(style);
+
+  // Function to auto-resize textareas
+  function autoResizeTextareas() {
+    const textareas = document.querySelectorAll('textarea');
+
+    textareas.forEach(textarea => {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto'; // Reset height to auto
+        this.style.height = this.scrollHeight + 'px'; // Set to scrollHeight
+      });
+    });
+  }
+
+  // Initialize auto-resizing on textareas
+  autoResizeTextareas();
 
   submitBtn.addEventListener('click', function(event) {
     event.preventDefault();
