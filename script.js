@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
       border: 1px solid #ccc;
       padding: 5px;
       min-height: 30px;
-      width: 300px; /* Set a fixed width or use a percentage */
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
