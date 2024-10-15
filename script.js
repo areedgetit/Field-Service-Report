@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
-  const inputDiv = document.getElementById('input-div');
+  const inputDivs = document.querySelectorAll('.input-div');
 
   // Add custom CSS to the page to improve input rendering
   const style = document.createElement('style');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
       overflow: hidden; /* Prevent scrollbars */
       resize: none; /* Disable manual resizing */
     }
-    #input-div {
+    .input-div {
       border: 1px solid #ccc;
       padding: 5px;
       min-height: 30px;
@@ -31,23 +31,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Function to adjust height of contenteditable div
   function adjustHeight() {
-    inputDiv.style.height = 'auto';
-    inputDiv.style.height = inputDiv.scrollHeight + 'px';
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
   }
 
-  // Event listeners for contenteditable div
-  inputDiv.addEventListener('input', adjustHeight);
-  inputDiv.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+  // Event listeners for contenteditable divs
+  inputDivs.forEach(inputDiv => {
+    inputDiv.addEventListener('input', adjustHeight);
+    inputDiv.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    inputDiv.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      this.focus();
+    });
   });
-  inputDiv.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    this.focus();
-  });
-
-  // Initial call to set the correct height
-  adjustHeight();
 
   // Function to auto-resize textareas
   function autoResizeTextareas() {
