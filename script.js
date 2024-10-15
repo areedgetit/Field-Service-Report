@@ -15,17 +15,19 @@ document.addEventListener('DOMContentLoaded', function() {
       overflow: hidden; /* Prevent scrollbars */
       resize: none; /* Disable manual resizing */
     }
-    .input-div {
-      border: 1px solid #ccc;
-      padding: 5px;
-      min-height: 30px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      line-height: 1.5;
-      max-height: 300px; /* Optional: set a maximum height */
-      overflow-y: auto; /* Add scrollbar if content exceeds max-height */
-    }
+  .input-div {
+    min-height: 30px !important;
+    line-height: 30px !important;
+    padding: 5px !important;
+    margin-bottom: 5px !important;
+    border: 1px solid #ccc !important;
+    box-sizing: border-box !important;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow-y: auto; /* Add scrollbar if content exceeds height */
+    max-height: 300px; /* Optional: set a maximum height */
+  }
   `;
   document.head.appendChild(style);
 
