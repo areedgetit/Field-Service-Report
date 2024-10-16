@@ -114,29 +114,16 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         }
       }).then(canvas => {
-        // Convert canvas to SVG
-        const ctx = new C2S(canvas.width, canvas.height);
-        ctx.drawImage(canvas, 0, 0);
-        const svgString = ctx.getSerializedSvg();
-        
-        // Create PDF using SVG
-        const doc = new PDFDocument({size: [canvas.width, canvas.height]});
-        const stream = doc.pipe(blobStream());
-
-        SVGtoPDF(doc, svgString, 0, 0, {width: canvas.width, height: canvas.height});
-
-        doc.end();
-
-        stream.on('finish', function() {
-          // Get the PDF as a blob
-          const blob = stream.toBlob('application/pdf');
-
-          // Create a download link
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = 'form-data.pdf';
-          link.click();
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
         });
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('form-data.pdf');
 
         // Clean up
         document.body.removeChild(tempContainer);
