@@ -2,7 +2,67 @@ document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
   const inputDivs = document.querySelectorAll('.input-div');
 
-  // ... (keep your existing CSS and event listener setup) ...
+  // Add custom CSS to the page to improve input rendering
+  const style = document.createElement('style');
+  style.textContent = `
+    .pdf-input {
+      min-height: 30px !important;
+      line-height: 30px !important;
+      padding: 5px !important;
+      margin-bottom: 5px !important;
+      border: 1px solid #ccc !important;
+      box-sizing: border-box !important;
+      overflow: hidden; /* Prevent scrollbars */
+      resize: none; /* Disable manual resizing */
+    }
+    .input-div {
+      min-height: 30px !important;
+      line-height: 30px !important;
+      padding: 5px !important;
+      margin-bottom: 5px !important;
+      border: 1px solid #ccc !important;
+      box-sizing: border-box !important;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      overflow-y: auto; /* Add scrollbar if content exceeds height */
+      max-height: 300px; /* Optional: set a maximum height */
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Function to adjust height of contenteditable div
+  function adjustHeight() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+  }
+
+  // Event listeners for contenteditable divs
+  inputDivs.forEach(inputDiv => {
+    inputDiv.addEventListener('input', adjustHeight);
+    inputDiv.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    inputDiv.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      this.focus();
+    });
+  });
+
+  // Function to auto-resize textareas
+  function autoResizeTextareas() {
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+      });
+    });
+  }
+
+  // Initialize auto-resizing on textareas
+  autoResizeTextareas();
 
   submitBtn.addEventListener('click', function(event) {
     event.preventDefault();
