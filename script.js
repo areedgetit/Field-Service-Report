@@ -73,68 +73,55 @@ document.addEventListener('DOMContentLoaded', function() {
       el.classList.add('pdf-input');
     });
 
-    // Create a temporary container
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.top = '0';
-    tempContainer.style.left = '0';
-    tempContainer.style.width = form.offsetWidth + 'px';
-    tempContainer.style.height = 'auto';
-    tempContainer.style.background = 'white';
-    tempContainer.style.zIndex = '-9999';
-    document.body.appendChild(tempContainer);
-
-    // Clone the form and append it to the temporary container
-    const clonedForm = form.cloneNode(true);
-    tempContainer.appendChild(clonedForm);
-
-    // Remove any max-height constraints
-    tempContainer.querySelectorAll('*').forEach(el => {
-      el.style.maxHeight = 'none';
-      el.style.height = 'auto';
-    });
-
-    // Delay to ensure everything is rendered properly
-    setTimeout(() => {
-      html2canvas(tempContainer, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: true,
-        onclone: function(clonedDoc) {
-          clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
-            if (el.getAttribute('contenteditable') === 'true') {
-              el.style.color = 'black';
-              el.style.fontSize = '16px';
-              el.textContent = el.textContent; // Ensure content is preserved
-            } else if (el.value) {
-              el.style.color = 'black';
-              el.style.fontSize = '16px';
-            }
-          });
-        }
-      }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'px',
-          format: [canvas.width, canvas.height]
+    html2canvas(form, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: true,
+      onclone: function(clonedDoc) {
+        clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
+          if (el.getAttribute('contenteditable') === 'true') {
+            el.style.color = 'black';
+            el.style.fontSize = '16px';
+            el.textContent = el.textContent; // Ensure content is preserved
+          } else if (el.value) {
+            el.style.color = 'black';
+            el.style.fontSize = '16px';
+          }
         });
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('form-data.pdf');
+      }
+    }).then(canvas => {
+      // Convert canvas to SVG
+      const ctx = new C2S(canvas.width, canvas.height);
+      ctx.drawImage(canvas, 0, 0);
+      const svgString = ctx.getSerializedSvg();
+      
+      // Create PDF using SVG
+      const doc = new PDFDocument({size: [canvas.width, canvas.height]});
+      const stream = doc.pipe(blobStream());
 
-        // Clean up
-        document.body.removeChild(tempContainer);
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
-      }).catch(error => {
-        console.error('Error in html2canvas operation:', error);
-        alert('An error occurred while generating the PDF. Please check the console for more details.');
-        document.body.removeChild(tempContainer);
+      SVGtoPDF(doc, svgString, 0, 0, {width: canvas.width, height: canvas.height});
+
+      doc.end();
+
+      stream.on('finish', function() {
+        // Get the PDF as a blob
+        const blob = stream.toBlob('application/pdf');
+
+        // Create a download link
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'form-data.pdf';
+        link.click();
       });
-    }, 100);
+
+      // Clean up
+      form.querySelectorAll('.pdf-input').forEach(el => {
+        el.classList.remove('pdf-input');
+      });
+    }).catch(error => {
+      console.error('Error in PDF generation:', error);
+      alert('An error occurred while generating the PDF. Please check the console for more details.');
+    });
   });
 });
