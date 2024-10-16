@@ -80,18 +80,21 @@ document.addEventListener('DOMContentLoaded', function() {
     tempContainer.style.top = '0';
     tempContainer.style.left = '0';
     tempContainer.style.width = form.offsetWidth + 'px';
-    tempContainer.style.visibility = 'hidden';
+    tempContainer.style.backgroundColor = 'white'; // Ensure white background
+    tempContainer.style.zIndex = '-9999'; // Place behind other elements
+    document.body.appendChild(tempContainer);
 
     // Clone the form and append it to the temporary container
     const clonedForm = form.cloneNode(true);
     tempContainer.appendChild(clonedForm);
-    document.body.appendChild(tempContainer);
 
     // Function to generate PDF
     function generatePDF() {
       // Get the full height of the form, including any expanded content
       const formHeight = tempContainer.scrollHeight;
       const formWidth = tempContainer.offsetWidth;
+
+      console.log('Form dimensions:', formWidth, 'x', formHeight); // Debugging
 
       // Add a small buffer to the height
       const captureHeight = formHeight + 50; // 50px buffer
@@ -102,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         allowTaint: true,
         height: captureHeight,
         windowHeight: captureHeight,
+        logging: true, // Enable logging for debugging
         onclone: function(clonedDoc) {
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.getAttribute('contenteditable') === 'true') {
@@ -115,6 +119,16 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         }
       }).then(canvas => {
+        console.log('Canvas dimensions:', canvas.width, 'x', canvas.height); // Debugging
+
+        // For debugging: add the canvas to the document temporarily
+        document.body.appendChild(canvas);
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.zIndex = '9999';
+        canvas.style.border = '2px solid red';
+
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({
           orientation: 'portrait',
@@ -127,10 +141,13 @@ document.addEventListener('DOMContentLoaded', function() {
         pdf.save('styled-form-data.pdf');
 
         // Clean up
-        document.body.removeChild(tempContainer);
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
+        setTimeout(() => {
+          document.body.removeChild(tempContainer);
+          document.body.removeChild(canvas); // Remove debug canvas
+          form.querySelectorAll('.pdf-input').forEach(el => {
+            el.classList.remove('pdf-input');
+          });
+        }, 5000); // Wait 5 seconds before cleaning up for debugging
       }).catch(error => {
         console.error('Error in html2canvas operation:', error);
         alert('An error occurred while generating the PDF. Please check the console for more details.');
