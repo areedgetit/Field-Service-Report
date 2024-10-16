@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
       margin-bottom: 5px !important;
       border: 1px solid #ccc !important;
       box-sizing: border-box !important;
-      overflow: hidden; /* Prevent scrollbars */
+      overflow: visible !important; /* Allow content to overflow */
       resize: none; /* Disable manual resizing */
     }
     .input-div {
@@ -25,8 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
-      overflow-y: auto; /* Add scrollbar if content exceeds height */
-      max-height: 300px; /* Optional: set a maximum height */
+      overflow: visible !important; /* Allow content to overflow */
     }
   `;
   document.head.appendChild(style);
@@ -80,24 +79,31 @@ document.addEventListener('DOMContentLoaded', function() {
     tempContainer.style.top = '0';
     tempContainer.style.left = '0';
     tempContainer.style.width = form.offsetWidth + 'px';
-    tempContainer.style.backgroundColor = 'white'; // Ensure white background
-    tempContainer.style.zIndex = '-9999'; // Place behind other elements
+    tempContainer.style.backgroundColor = 'white';
+    tempContainer.style.zIndex = '-9999';
     document.body.appendChild(tempContainer);
 
     // Clone the form and append it to the temporary container
     const clonedForm = form.cloneNode(true);
     tempContainer.appendChild(clonedForm);
 
+    // Remove any max-height constraints
+    tempContainer.querySelectorAll('*').forEach(el => {
+      el.style.maxHeight = 'none';
+      el.style.height = 'auto';
+    });
+
     // Function to generate PDF
     function generatePDF() {
-      // Get the full height of the form, including any expanded content
-      const formHeight = tempContainer.scrollHeight;
+      // Adjust container height to fit all content
+      tempContainer.style.height = 'auto';
+      const formHeight = tempContainer.offsetHeight;
       const formWidth = tempContainer.offsetWidth;
 
-      console.log('Form dimensions:', formWidth, 'x', formHeight); // Debugging
+      console.log('Form dimensions:', formWidth, 'x', formHeight);
 
-      // Add a small buffer to the height
-      const captureHeight = formHeight + 50; // 50px buffer
+      // Add a larger buffer to the height
+      const captureHeight = formHeight + 200; // 200px buffer
 
       html2canvas(tempContainer, {
         scale: 2,
@@ -105,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
         allowTaint: true,
         height: captureHeight,
         windowHeight: captureHeight,
-        logging: true, // Enable logging for debugging
+        logging: true,
         onclone: function(clonedDoc) {
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.getAttribute('contenteditable') === 'true') {
@@ -119,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         }
       }).then(canvas => {
-        console.log('Canvas dimensions:', canvas.width, 'x', canvas.height); // Debugging
+        console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 
         // For debugging: add the canvas to the document temporarily
         document.body.appendChild(canvas);
@@ -128,6 +134,9 @@ document.addEventListener('DOMContentLoaded', function() {
         canvas.style.left = '0';
         canvas.style.zIndex = '9999';
         canvas.style.border = '2px solid red';
+        canvas.style.maxHeight = '100vh';
+        canvas.style.maxWidth = '100vw';
+        canvas.style.overflow = 'auto';
 
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({
@@ -143,11 +152,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clean up
         setTimeout(() => {
           document.body.removeChild(tempContainer);
-          document.body.removeChild(canvas); // Remove debug canvas
+          document.body.removeChild(canvas);
           form.querySelectorAll('.pdf-input').forEach(el => {
             el.classList.remove('pdf-input');
           });
-        }, 5000); // Wait 5 seconds before cleaning up for debugging
+        }, 5000);
       }).catch(error => {
         console.error('Error in html2canvas operation:', error);
         alert('An error occurred while generating the PDF. Please check the console for more details.');
