@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
       margin-bottom: 5px !important;
       border: 1px solid #ccc !important;
       box-sizing: border-box !important;
-      overflow: visible !important; /* Allow content to overflow */
+      overflow: visible !important;
       resize: none; /* Disable manual resizing */
     }
     .input-div {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
-      overflow: visible !important; /* Allow content to overflow */
+      overflow: visible !important;
     }
   `;
   document.head.appendChild(style);
@@ -79,7 +79,8 @@ document.addEventListener('DOMContentLoaded', function() {
     tempContainer.style.top = '0';
     tempContainer.style.left = '0';
     tempContainer.style.width = form.offsetWidth + 'px';
-    tempContainer.style.backgroundColor = 'white';
+    tempContainer.style.height = 'auto';
+    tempContainer.style.background = 'white';
     tempContainer.style.zIndex = '-9999';
     document.body.appendChild(tempContainer);
 
@@ -93,24 +94,12 @@ document.addEventListener('DOMContentLoaded', function() {
       el.style.height = 'auto';
     });
 
-    // Function to generate PDF
-    function generatePDF() {
-      // Adjust container height to fit all content
-      tempContainer.style.height = 'auto';
-      const formHeight = tempContainer.offsetHeight;
-      const formWidth = tempContainer.offsetWidth;
-
-      console.log('Form dimensions:', formWidth, 'x', formHeight);
-
-      // Add a larger buffer to the height
-      const captureHeight = formHeight + 200; // 200px buffer
-
+    // Delay to ensure everything is rendered properly
+    setTimeout(() => {
       html2canvas(tempContainer, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        height: captureHeight,
-        windowHeight: captureHeight,
         logging: true,
         onclone: function(clonedDoc) {
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
@@ -125,50 +114,21 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         }
       }).then(canvas => {
-        console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
-
-        // For debugging: add the canvas to the document temporarily
-        document.body.appendChild(canvas);
-        canvas.style.position = 'fixed';
-        canvas.style.top = '0';
-        canvas.style.left = '0';
-        canvas.style.zIndex = '9999';
-        canvas.style.border = '2px solid red';
-        canvas.style.maxHeight = '100vh';
-        canvas.style.maxWidth = '100vw';
-        canvas.style.overflow = 'auto';
-
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'px',
-          format: [canvas.width, canvas.height]
-        });
-
         const imgData = canvas.toDataURL('image/png');
+        const pdf = new PDFDocument();
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('styled-form-data.pdf');
+        pdf.save('form-data.pdf');
 
         // Clean up
-        setTimeout(() => {
-          document.body.removeChild(tempContainer);
-          document.body.removeChild(canvas);
-          form.querySelectorAll('.pdf-input').forEach(el => {
-            el.classList.remove('pdf-input');
-          });
-        }, 5000);
+        document.body.removeChild(tempContainer);
+        form.querySelectorAll('.pdf-input').forEach(el => {
+          el.classList.remove('pdf-input');
+        });
       }).catch(error => {
         console.error('Error in html2canvas operation:', error);
         alert('An error occurred while generating the PDF. Please check the console for more details.');
         document.body.removeChild(tempContainer);
       });
-    }
-
-    // Use requestAnimationFrame to ensure all rendering is complete
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        generatePDF();
-      });
-    });
+    }, 100);
   });
 });
