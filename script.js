@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (el.getAttribute('contenteditable') === 'true') {
               el.style.color = 'black';
               el.style.fontSize = '16px';
-              el.textContent = el.textContent;
+              el.textContent = el.textContent; // Ensure content is preserved
             } else if (el.value) {
               el.style.color = 'black';
               el.style.fontSize = '16px';
