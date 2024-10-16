@@ -4,10 +4,10 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles.css">
-        <script src="script.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>    
+        <script src="script.js" defer></script>  
         <title>Field Service App</title>     
     </head>
     <body>
@@ -31,7 +31,7 @@
                     <option value="TCG">TGC</option>
                     <option value="Skid Mount">Skid Mount</option></select>
                         <label for="Machine-Number">  
-                        <input type="number" id="Machine-Number" name="Machine-Number" maxlenght="4" required placeholder="Machine Number"></label>
+                        <input type="number" id="Machine-Number" name="Machine-Number" max="4" required placeholder="Machine Number"></label>
                         <h4><u>PERSONNEL IN ATTENDANCE</u></h4>
                         <label for="operator">Operator: <input type="text" id="operator" name="operator"></label>
                         <label for="foreman">Foreman: <input type="text" id="foreman" name="foreman"></label>
