@@ -132,35 +132,3 @@ textarea {
    
 }
 
-/*@media (max-width: 600px) {
-    table {
-        display: block; /* Make table block for stacking */
-/*        overflow-x: auto; /* Allow horizontal scrolling */
- /*       border: none; /* Remove table border in mobile view */
- /*   }
-    td {
-        padding: 10px;
-        border: 2px solid black; /* 2px border around each cell */
- /*   }
-    
-    /* For mobile version */
-/*    td {
-        display: inline-block; /* Change to inline-block for alignment */
- /*       width: calc(50% - 10px); /* Two cells per row with spacing */
- /*       padding: 5px; /* Reduce padding for smaller screens */
- /*       border: none; /* Remove default cell borders */
-/*    }
-    
-    /* Add border every two cells */
- /*   td:nth-child(2n) {
-        border-bottom: 2px solid black; /* Add right border to every second cell */
- /*   }
-  /*  
-    tr:last-child td:nth-child(2n) {
-        border-right: none; /* Remove right border from the last row's last cell */
-  /*  }
-    
-    tr {
-        display: flex; /* Use flexbox to stack cells */
- /*       flex-wrap: wrap; /* Allow wrapping */
-  /*  }

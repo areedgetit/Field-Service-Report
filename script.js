@@ -117,14 +117,20 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         }
       }).then(canvas => {
-        // Create a PNG image from the canvas
-        const imgData = canvas.toDataURL('image/png');
+        // Create a new jsPDF instance
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
+        });
 
-        // Create a link to download the image
-        const link = document.createElement('a');
-        link.href = imgData;
-        link.download = 'styled-form-data.png'; // Set the name for the downloaded file
-        link.click(); // Programmatically click the link to trigger the download
+        // Add the canvas as an image to the PDF
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+
+        // Save the PDF
+        pdf.save('styled-form-data.pdf');
 
         // Remove the temporary container
         document.body.removeChild(tempContainer);
@@ -135,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }).catch(error => {
         console.error('Error in html2canvas operation:', error);
-        alert('An error occurred while capturing the image. Please check the console for more details.');
+        alert('An error occurred while generating the PDF. Please check the console for more details.');
         
         // Remove the temporary container in case of error
         document.body.removeChild(tempContainer);
