@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
   const inputDivs = document.querySelectorAll('.input-div');
 
-  // Add custom CSS to the page to improve input rendering
   const style = document.createElement('style');
   style.textContent = `
     .pdf-input {
@@ -13,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
       border: 1px solid #ccc !important;
       box-sizing: border-box !important;
       overflow: visible !important;
-      resize: none; /* Disable manual resizing */
+      resize: none;
     }
     .input-div {
       min-height: 30px !important;
@@ -30,26 +29,19 @@ document.addEventListener('DOMContentLoaded', function() {
   `;
   document.head.appendChild(style);
 
-  // Function to adjust height of contenteditable div
   function adjustHeight() {
     this.style.height = 'auto';
     this.style.height = this.scrollHeight + 'px';
   }
 
-  // Event listeners for contenteditable divs
   inputDivs.forEach(inputDiv => {
     inputDiv.addEventListener('input', adjustHeight);
-    inputDiv.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    });
     inputDiv.addEventListener('mousedown', function(e) {
       e.preventDefault();
       this.focus();
     });
   });
 
-  // Function to auto-resize textareas
   function autoResizeTextareas() {
     const textareas = document.querySelectorAll('textarea');
     textareas.forEach(textarea => {
@@ -60,15 +52,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Initialize auto-resizing on textareas
   autoResizeTextareas();
 
   submitBtn.addEventListener('click', function(event) {
     event.preventDefault();
 
     const form = document.querySelector('form');
-
-    // Apply custom class to all input, select, textarea, and contenteditable elements
     form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => {
       el.classList.add('pdf-input');
     });
@@ -83,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (el.getAttribute('contenteditable') === 'true') {
             el.style.color = 'black';
             el.style.fontSize = '16px';
-            el.textContent = el.textContent; // Ensure content is preserved
+            el.textContent = el.textContent;
           } else if (el.value) {
             el.style.color = 'black';
             el.style.fontSize = '16px';
@@ -91,12 +80,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }
     }).then(canvas => {
-      // Convert canvas to SVG
       const ctx = new C2S(canvas.width, canvas.height);
       ctx.drawImage(canvas, 0, 0);
       const svgString = ctx.getSerializedSvg();
-      
-      // Create PDF using SVG
+      console.log('SVG String:', svgString); // Log SVG for debugging
+
       const doc = new PDFDocument({size: [canvas.width, canvas.height]});
       const stream = doc.pipe(blobStream());
 
@@ -105,17 +93,13 @@ document.addEventListener('DOMContentLoaded', function() {
       doc.end();
 
       stream.on('finish', function() {
-        // Get the PDF as a blob
         const blob = stream.toBlob('application/pdf');
-
-        // Create a download link
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = 'form-data.pdf';
         link.click();
       });
 
-      // Clean up
       form.querySelectorAll('.pdf-input').forEach(el => {
         el.classList.remove('pdf-input');
       });
