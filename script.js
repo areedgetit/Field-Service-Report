@@ -41,8 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
   inputDivs.forEach(inputDiv => {
     inputDiv.addEventListener('input', adjustHeight);
     inputDiv.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.stopPropagation(); // Allow clicks
     });
     inputDiv.addEventListener('mousedown', function(e) {
       e.preventDefault();
