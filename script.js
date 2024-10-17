@@ -41,10 +41,10 @@ document.addEventListener('DOMContentLoaded', function() {
   inputDivs.forEach(inputDiv => {
     inputDiv.addEventListener('input', adjustHeight);
     inputDiv.addEventListener('click', function(e) {
-      e.stopPropagation(); // Allow clicks
+      e.stopPropagation(); // Ensure clicks work
     });
     inputDiv.addEventListener('mousedown', function(e) {
-      e.preventDefault();
+      e.preventDefault(); // Prevent focus jump
       this.focus();
     });
   });
@@ -78,8 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
     tempContainer.style.position = 'absolute';
     tempContainer.style.top = '0';
     tempContainer.style.left = '0';
-    tempContainer.style.width = '0px'; // Set width to 0 initially
-    tempContainer.style.height = '0px'; // Set height to 0 initially
+    tempContainer.style.width = '0px';
+    tempContainer.style.height = '0px';
     tempContainer.style.overflow = 'hidden';
     tempContainer.style.pointerEvents = 'none';
 
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const pdf = new jsPDF({
           orientation: 'portrait',
           unit: 'px',
-          format: 'a4' // A4 size for automatic handling
+          format: 'a4'
         });
 
         // Add the canvas as an image to the PDF
@@ -122,40 +122,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const pageHeight = pdf.internal.pageSize.height;
         let contentHeight = canvas.height;
 
-        let currentY = 0; // Current vertical position in the PDF
+        let currentY = 0;
 
         while (contentHeight > 0) {
-          // Calculate the height to draw on this page
           let drawHeight = Math.min(contentHeight, pageHeight - currentY);
           pdf.addImage(imgData, 'PNG', 0, currentY, canvas.width, drawHeight);
           currentY += drawHeight;
 
           if (currentY >= pageHeight) {
-            pdf.addPage(); // Add a new page if current page is full
-            currentY = 0; // Reset vertical position for the new page
+            pdf.addPage();
+            currentY = 0;
           }
 
-          contentHeight -= drawHeight; // Decrease remaining content height
+          contentHeight -= drawHeight;
         }
 
         // Save the PDF
         pdf.save('styled-form-data.pdf');
 
-        // Remove the temporary container
+        // Clean up
         document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
         form.querySelectorAll('.pdf-input').forEach(el => {
           el.classList.remove('pdf-input');
         });
       }).catch(error => {
         console.error('Error in html2canvas operation:', error);
         alert('An error occurred while generating the PDF. Please check the console for more details.');
-        
-        // Remove the temporary container in case of error
+
+        // Clean up
         document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
         form.querySelectorAll('.pdf-input').forEach(el => {
           el.classList.remove('pdf-input');
         });
