@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
-  const inputDivs = document.querySelectorAll('.input-div');
+  const inputDiv = document.getElementById('input-div');
 
   // Add custom CSS to the page to improve input rendering
   const style = document.createElement('style');
@@ -15,39 +15,40 @@ document.addEventListener('DOMContentLoaded', function() {
       overflow: hidden; /* Prevent scrollbars */
       resize: none; /* Disable manual resizing */
     }
-    .input-div {
-      min-height: 30px !important;
-      line-height: 30px !important;
-      padding: 5px !important;
-      margin-bottom: 5px !important;
-      border: 1px solid #ccc !important;
-      box-sizing: border-box !important;
+    #input-div {
+      border: 1px solid #ccc;
+      padding: 5px;
+      min-height: 30px;
+      width: 300px; /* Set a fixed width or use a percentage */
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
-      overflow-y: auto; /* Add scrollbar if content exceeds height */
+      line-height: 1.5;
       max-height: 300px; /* Optional: set a maximum height */
+      overflow-y: auto; /* Add scrollbar if content exceeds max-height */
     }
   `;
   document.head.appendChild(style);
 
   // Function to adjust height of contenteditable div
   function adjustHeight() {
-    this.style.height = 'auto';
-    this.style.height = this.scrollHeight + 'px';
+    inputDiv.style.height = 'auto';
+    inputDiv.style.height = inputDiv.scrollHeight + 'px';
   }
 
-  // Event listeners for contenteditable divs
-  inputDivs.forEach(inputDiv => {
-    inputDiv.addEventListener('input', adjustHeight);
-    inputDiv.addEventListener('click', function(e) {
-      e.stopPropagation(); // Ensure clicks work
-    });
-    inputDiv.addEventListener('mousedown', function(e) {
-      e.preventDefault(); // Prevent focus jump
-      this.focus();
-    });
+  // Event listeners for contenteditable div
+  inputDiv.addEventListener('input', adjustHeight);
+  inputDiv.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
   });
+  inputDiv.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    this.focus();
+  });
+
+  // Initial call to set the correct height
+  adjustHeight();
 
   // Function to auto-resize textareas
   function autoResizeTextareas() {
@@ -73,13 +74,17 @@ document.addEventListener('DOMContentLoaded', function() {
       el.classList.add('pdf-input');
     });
 
+    // Get the full height of the form
+    const formHeight = form.scrollHeight;
+    const formWidth = form.offsetWidth;
+
     // Create a temporary container
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'absolute';
     tempContainer.style.top = '0';
     tempContainer.style.left = '0';
-    tempContainer.style.width = '0px';
-    tempContainer.style.height = '0px';
+    tempContainer.style.width = formWidth + 'px';
+    tempContainer.style.height = formHeight + 'px';
     tempContainer.style.overflow = 'hidden';
     tempContainer.style.pointerEvents = 'none';
 
@@ -90,18 +95,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Delay to ensure everything is rendered properly
     setTimeout(() => {
-      // Capture the screenshot
+      // Calculate aspect ratio
+      const aspectRatio = formHeight / formWidth;
+
+      // Set up PDF dimensions
+      const { jsPDF } = window.jspdf;
+      const pdfWidth = 210; // A4 width in mm
+      const pdfHeight = pdfWidth * aspectRatio;
+      const doc = new jsPDF({
+        orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight]
+      });
+
       html2canvas(tempContainer, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
+        height: formHeight,
+        windowHeight: formHeight,
         onclone: function(clonedDoc) {
           // Ensure text is visible in cloned inputs and contenteditable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.getAttribute('contenteditable') === 'true') {
               el.style.color = 'black';
               el.style.fontSize = '16px';
-              el.textContent = el.textContent; // Ensure the content of the div is preserved
+              // Ensure the content of the div is preserved
+              el.textContent = el.textContent;
             } else if (el.value) {
               el.style.color = 'black';
               el.style.fontSize = '16px';
@@ -109,48 +129,25 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         }
       }).then(canvas => {
-        // Create a new jsPDF instance
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'px',
-          format: 'a4'
-        });
-
-        // Add the canvas as an image to the PDF
         const imgData = canvas.toDataURL('image/png');
-        const pageHeight = pdf.internal.pageSize.height;
-        let contentHeight = canvas.height;
+        doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        doc.save('styled-form-data.pdf');
 
-        let currentY = 0;
-
-        while (contentHeight > 0) {
-          let drawHeight = Math.min(contentHeight, pageHeight - currentY);
-          pdf.addImage(imgData, 'PNG', 0, currentY, canvas.width, drawHeight);
-          currentY += drawHeight;
-
-          if (currentY >= pageHeight) {
-            pdf.addPage();
-            currentY = 0;
-          }
-
-          contentHeight -= drawHeight;
-        }
-
-        // Save the PDF
-        pdf.save('styled-form-data.pdf');
-
-        // Clean up
+        // Remove the temporary container
         document.body.removeChild(tempContainer);
+        
+        // Remove custom class from original form elements
         form.querySelectorAll('.pdf-input').forEach(el => {
           el.classList.remove('pdf-input');
         });
       }).catch(error => {
         console.error('Error in html2canvas operation:', error);
         alert('An error occurred while generating the PDF. Please check the console for more details.');
-
-        // Clean up
+        
+        // Remove the temporary container in case of error
         document.body.removeChild(tempContainer);
+        
+        // Remove custom class from original form elements
         form.querySelectorAll('.pdf-input').forEach(el => {
           el.classList.remove('pdf-input');
         });
