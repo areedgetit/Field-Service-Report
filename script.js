@@ -30,25 +30,35 @@ document.addEventListener('DOMContentLoaded', function() {
   `;
   document.head.appendChild(style);
 
-  // Function to adjust height of contenteditable div
-  function adjustHeight() {
+// Select all divs with the class 'input-div'
+const inputDivs = document.querySelectorAll('input-div');
+
+// Function to adjust height of contenteditable div
+function adjustHeight(inputDiv) {
     inputDiv.style.height = 'auto';
     inputDiv.style.height = inputDiv.scrollHeight + 'px';
-  }
+}
 
-  // Event listeners for contenteditable div
-  inputDiv.addEventListener('input', adjustHeight);
-  inputDiv.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-  });
-  inputDiv.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    this.focus();
-  });
+// Loop through each inputDiv and add event listeners
+inputDivs.forEach(inputDiv => {
+    inputDiv.addEventListener('input', function() {
+        adjustHeight(inputDiv); // Pass the current inputDiv
+    });
 
-  // Initial call to set the correct height
-  adjustHeight();
+    inputDiv.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    inputDiv.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        this.focus();
+    });
+
+    // Initial call to set the correct height
+    adjustHeight(inputDiv);
+});
+
 
   // Function to auto-resize textareas
   function autoResizeTextareas() {
