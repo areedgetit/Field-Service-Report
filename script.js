@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
-  const inputDiv = document.querySelectorAll('input-div');
+  const inputDivs = document.querySelectorAll('input-div');
 
   // Add custom CSS to the page to improve input rendering
   const style = document.createElement('style');
@@ -47,7 +47,7 @@ inputDivs.forEach(inputDiv => {
     inputDiv.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        this.focus
+        this.focus();
     });
 
     inputDiv.addEventListener('mousedown', function(e) {
