@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
-  const inputDiv = document.getElementById('input-div');
+  const inputDiv = document.querySelectorAll('input-div');
 
   // Add custom CSS to the page to improve input rendering
   const style = document.createElement('style');
@@ -30,8 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
   `;
   document.head.appendChild(style);
 
-// Select all divs with the class 'input-div'
-const inputDivs = document.querySelectorAll('input-div');
+
 
 // Function to adjust height of contenteditable div
 function adjustHeight(inputDiv) {
@@ -48,6 +47,7 @@ inputDivs.forEach(inputDiv => {
     inputDiv.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        this.focus
     });
 
     inputDiv.addEventListener('mousedown', function(e) {
