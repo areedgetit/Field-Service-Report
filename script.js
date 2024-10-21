@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }  
     #main-info label > input[type="checkbox"] {
       margin-left: 5px; 
-      ransform: translateY(-2px); 
+      transform: translateY(-5px); 
     }  
   `;
   document.head.appendChild(style);
