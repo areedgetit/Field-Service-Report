@@ -36,6 +36,11 @@ document.addEventListener('DOMContentLoaded', function() {
       box-sizing: border-box !important;
       overflow: hidden; /* Prevent scrollbars */
       resize: none; /* Disable manual resizing */  
+    }  
+    #main-info label > input[type="checkbox"] {
+      margin-left: 5px; 
+      ransform: translateY(-2px); 
+    }  
   `;
   document.head.appendChild(style);
 
