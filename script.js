@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }  
       #main-info label > input[type="checkbox"] {
         margin-left: 5px; 
-        margin-top: 10px;
+        margin-top: 20px;
       }  
     `;
     document.head.appendChild(style);
