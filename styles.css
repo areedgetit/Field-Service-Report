@@ -42,7 +42,7 @@ span label {
 
  #main-info label > input[type="checkbox"] {
     margin-left:5px;
-    margin-top: 20px;
+    margin-top: 2px;
    
 }
 #main-info label { display:flex;
