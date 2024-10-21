@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
-  const inputDivs = document.querySelectorAll('input-div');
+  const inputDivs = document.querySelectorAll('.input-div');
 
   // Add custom CSS to the page to improve input rendering
   const style = document.createElement('style');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
       overflow: hidden; /* Prevent scrollbars */
       resize: none; /* Disable manual resizing */
     }
-    #input-div {
+    .input-div {
       border: 1px solid #ccc;
       padding: 5px;
       min-height: 30px;
