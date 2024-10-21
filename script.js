@@ -16,18 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         overflow: hidden; /* Prevent scrollbars */
         resize: none; /* Disable manual resizing */
       }
-      .input-div {
-        border: 1px solid #ccc;
-        padding: 5px;
-        min-height: 30px;
-        width: 300px; /* Set a fixed width or use a percentage */
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        line-height: 1.5;
-        max-height: 300px; /* Optional: set a maximum height */
-        overflow-y: auto; /* Add scrollbar if content exceeds max-height */
-      }
+     
       #submitBtn {
         min-height: 30px !important;
         line-height: 30px !important;
