@@ -27,6 +27,15 @@ document.addEventListener('DOMContentLoaded', function() {
       max-height: 300px; /* Optional: set a maximum height */
       overflow-y: auto; /* Add scrollbar if content exceeds max-height */
     }
+    #submitBtn {
+      min-height: 30px !important;
+      line-height: 30px !important;
+      padding: 5px !important;
+      margin-bottom: 5px !important;
+      border: 1px solid #ccc !important;
+      box-sizing: border-box !important;
+      overflow: hidden; /* Prevent scrollbars */
+      resize: none; /* Disable manual resizing */  
   `;
   document.head.appendChild(style);
 
