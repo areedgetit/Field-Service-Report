@@ -2,77 +2,76 @@ document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
   const inputDivs = document.querySelectorAll('.input-div');
 
-  // Add custom CSS to the page to improve input rendering
-  const style = document.createElement('style');
-  style.textContent = `
-    .pdf-input {
-      min-height: 30px !important;
-      line-height: 30px !important;
-      padding: 5px !important;
-      margin-bottom: 5px !important;
-      border: 1px solid #ccc !important;
-      box-sizing: border-box !important;
-      overflow: hidden; /* Prevent scrollbars */
-      resize: none; /* Disable manual resizing */
-    }
-    .input-div {
-      border: 1px solid #ccc;
-      padding: 5px;
-      min-height: 30px;
-      width: 300px; /* Set a fixed width or use a percentage */
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      line-height: 1.5;
-      max-height: 300px; /* Optional: set a maximum height */
-      overflow-y: auto; /* Add scrollbar if content exceeds max-height */
-    }
-    #submitBtn {
-      min-height: 30px !important;
-      line-height: 30px !important;
-      padding: 5px !important;
-      margin-bottom: 5px !important;
-      border: 1px solid #ccc !important;
-      box-sizing: border-box !important;
-      overflow: hidden; /* Prevent scrollbars */
-      resize: none; /* Disable manual resizing */  
-    }  
-    #main-info label > input[type="checkbox"] {
-      margin-left: 5px; 
-      margin-top: 10px;
-    }  
-  `;
-  document.head.appendChild(style);
+  // Function to add custom CSS styles
+  function addCustomStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .pdf-input {
+        min-height: 30px !important;
+        line-height: 30px !important;
+        padding: 5px !important;
+        margin-bottom: 5px !important;
+        border: 1px solid #ccc !important;
+        box-sizing: border-box !important;
+        overflow: hidden; /* Prevent scrollbars */
+        resize: none; /* Disable manual resizing */
+      }
+      .input-div {
+        border: 1px solid #ccc;
+        padding: 5px;
+        min-height: 30px;
+        width: 300px; /* Set a fixed width or use a percentage */
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.5;
+        max-height: 300px; /* Optional: set a maximum height */
+        overflow-y: auto; /* Add scrollbar if content exceeds max-height */
+      }
+      #submitBtn {
+        min-height: 30px !important;
+        line-height: 30px !important;
+        padding: 5px !important;
+        margin-bottom: 5px !important;
+        border: 1px solid #ccc !important;
+        box-sizing: border-box !important;
+        overflow: hidden; /* Prevent scrollbars */
+        resize: none; /* Disable manual resizing */  
+      }  
+      #main-info label > input[type="checkbox"] {
+        margin-left: 5px; 
+        margin-top: 10px;
+      }  
+    `;
+    document.head.appendChild(style);
+  }
 
-
-
-// Function to adjust height of contenteditable div
-function adjustHeight(inputDiv) {
+  // Function to adjust height of contenteditable div
+  function adjustHeight(inputDiv) {
     inputDiv.style.height = 'auto';
     inputDiv.style.height = inputDiv.scrollHeight + 'px';
-}
+  }
 
-// Loop through each inputDiv and add event listeners
-inputDivs.forEach(inputDiv => {
+  // Loop through each inputDiv and add event listeners
+  inputDivs.forEach(inputDiv => {
     inputDiv.addEventListener('input', function() {
-        adjustHeight(inputDiv); // Pass the current inputDiv
+      adjustHeight(inputDiv); // Pass the current inputDiv
     });
 
     inputDiv.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.focus();
+      e.preventDefault();
+      e.stopPropagation();
+      this.focus();
     });
 
     inputDiv.addEventListener('mousedown', function(e) {
-        e.preventDefault();
-        this.focus();
+      e.preventDefault();
+      this.focus();
     });
 
     // Initial call to set the correct height
     adjustHeight(inputDiv);
-});
-
+  });
 
   // Function to auto-resize textareas
   function autoResizeTextareas() {
@@ -90,6 +89,9 @@ inputDivs.forEach(inputDiv => {
 
   submitBtn.addEventListener('click', function(event) {
     event.preventDefault();
+
+    // Add custom CSS styles when the submit button is clicked
+    addCustomStyles();
 
     const form = document.querySelector('form');
 
