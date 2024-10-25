@@ -1,7 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
   const inputDivs = document.querySelectorAll('.input-div');
-
+  const machine = document.getElementById('machine');
+  const number = document.getElementById('Machine-Mumber')
+  const date = document.getElementById('date');
+  const gang = document.getElementById('gang-number'); 
   // Function to add custom CSS styles
   function addCustomStyles() {
     const style = document.createElement('style');
@@ -16,7 +19,18 @@ document.addEventListener('DOMContentLoaded', function() {
         overflow: hidden; /* Prevent scrollbars */
         resize: none; /* Disable manual resizing */
       }
-     
+      .input-div {
+        border: 1px solid #ccc;
+        padding: 5px;
+        min-height: 30px;
+        width: 300px; /* Set a fixed width or use a percentage */
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.5;
+        max-height: 300px; /* Optional: set a maximum height */
+        overflow-y: auto; /* Add scrollbar if content exceeds max-height */
+      }
       #submitBtn {
         min-height: 30px !important;
         line-height: 30px !important;
@@ -146,7 +160,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
         doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        doc.save('styled-form-data.pdf');
+        const fileName = `${machine}-${number}-${gang}-${date}.pdf`
+        doc.save(fileName);
 
         // Remove the temporary container
         document.body.removeChild(tempContainer);
