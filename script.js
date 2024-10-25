@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
   const inputDivs = document.querySelectorAll('.input-div');
-  const machine = document.getElementById('machine');
-  const number = document.getElementById('Machine-Mumber')
-  const date = document.getElementById('date');
-  const gang = document.getElementById('gang-number'); 
+  const machine = document.getElementById('machine').value;
+  const number = document.getElementById('Machine-Number').value;
+  const date = document.getElementById('date').value;
+  const gang = document.getElementById('gang-number').value; 
   // Function to add custom CSS styles
   function addCustomStyles() {
     const style = document.createElement('style');
