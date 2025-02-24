@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
   const inputDivs = document.querySelectorAll('.input-div');
-  const machine = document.getElementById('machine').value;
-  const number = document.getElementById('Machine-Number').value;
-  const date = document.getElementById('date').value;
-  const gang = document.getElementById('gang-number').value; 
+  const machine = document.getElementById('machine');
+  const number = document.getElementById('Machine-Number');
+  const date = document.getElementById('date');
+  const gang = document.getElementById('gang-number'); 
   // Function to add custom CSS styles
   function addCustomStyles() {
     const style = document.createElement('style');
@@ -56,12 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
 
-  const getData = () => {
-    machine = document.getElementById('machine').value;
-    number = document.getElementById('Machine-Number').value;
-    date = document.getElementById('date').value;
-    gang = document.getElementById('gang-number').value; 
-  }
+
 
   // Loop through each inputDiv and add event listeners
   inputDivs.forEach(inputDiv => {
@@ -103,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add custom CSS styles when the submit button is clicked
     addCustomStyles();
-    getData();
+
     const form = document.querySelector('form');
 
     // Apply custom class to all input, select, textarea, and contenteditable elements
@@ -168,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
         doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        const fileName = `${machine}-${number}-${gang}-${date}.pdf`
+        const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`
         doc.save(fileName);
 
         // Remove the temporary container
