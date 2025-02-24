@@ -1,0 +1,145 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.form {
+    background-color: limegreen;
+    border: 5px solid black;
+    border-radius: 5px;
+    margin: 20px;
+    padding: 20px;
+    max-width: 750px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+img {
+    max-width: 100%; /* Responsive image */
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+input, select, button {
+    
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+span label {
+    display: block; /* Labels on separate lines */
+    text-align: left; /* Align text left */
+}
+
+ #main-info label > input[type="checkbox"] {
+    margin-left:5px;
+   
+   
+   
+}
+#main-info label { display:flex;
+                    align-items:center;
+
+}
+
+table {
+    width: 100%; /* Full width for table */
+    border-collapse: collapse; /* Collapse borders */
+    border: 5px solid black; /* Border around the table */
+    border-radius: 5px;
+    overflow: hidden;
+   
+    
+    
+}
+
+td {
+    padding: 10px;
+    border: 2px solid black; /* Border around each cell */
+    
+}
+
+button {
+    width: 100%; /* Full width for inputs and buttons */
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+input [for='appearance-good'] {
+    display:inline-block
+}
+
+p {
+    margin: 5px 0;
+}
+.input-div {  border: 1px solid #ccc;
+    padding: 5px;
+    min-height: 30px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.5;
+    background-color: #fff;
+    overflow-y: auto;
+    max-height: 200px;
+    max-width: 194px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+
+}
+textarea {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden; /* Prevent scrollbars */
+    resize: none; /* Disable manual resizing */
+    min-height: 30px; /* Set a minimum height */
+
+}
+
+/* Media Query for Mobile Devices */
+@media (max-width: 600px) {
+    table {
+        display: block; /* Make table block for stacking */
+        overflow-x: auto; /* Allow horizontal scrolling */
+        border: none; /* Remove table border in mobile view */
+        border-radius: 0px;
+    }
+
+    tr {
+        display: block; /* Stack rows vertically */
+        margin-bottom: 10px; /* Add space between stacked items */
+        border: 2px solid black; /* Add border around each stacked item */
+        border-radius: 5px; /* Optional: round the corners */
+        padding: 5px; /* Add padding */
+        
+    }
+
+    td {
+        display: block; /* Flex for easy alignment */
+        justify-content: space-between; /* Space out labels and inputs */
+        padding: 5px; /* Reduce padding for smaller screens */
+        border: none; /* Remove cell borders in mobile view */
+    }
+    input[type='checkbox'] {
+        height:15px;
+        width: 15px;
+
+
+    }
+   
+}
+
