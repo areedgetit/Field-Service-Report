@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
               clonedSelect.style.backgroundColor = 'white';
               clonedSelect.setAttribute('data-value', selectedText);
             }
-       
+          }
           // Ensure text is visible in cloned inputs and contenteditable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.getAttribute('contenteditable') === 'true') {
