@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         border: 1px solid #ccc;
         padding: 5px;
         min-height: 30px;
-        width: 300px; /* Set a fixed width or use a percentage */
+        width: 300px; 
         white-space: pre-wrap;
         word-wrap: break-word;
         overflow-wrap: break-word;
@@ -53,6 +53,14 @@ document.addEventListener('DOMContentLoaded', function() {
   function adjustHeight(inputDiv) {
     inputDiv.style.height = 'auto';
     inputDiv.style.height = inputDiv.scrollHeight + 'px';
+  }
+
+
+  const getData = () => {
+    machine = document.getElementById('machine').value;
+    number = document.getElementById('Machine-Number').value;
+    date = document.getElementById('date').value;
+    gang = document.getElementById('gang-number').value; 
   }
 
   // Loop through each inputDiv and add event listeners
@@ -95,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add custom CSS styles when the submit button is clicked
     addCustomStyles();
-
+    getData();
     const form = document.querySelector('form');
 
     // Apply custom class to all input, select, textarea, and contenteditable elements
