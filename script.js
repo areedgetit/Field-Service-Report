@@ -147,20 +147,19 @@ document.addEventListener('DOMContentLoaded', function() {
         height: formHeight,
         windowHeight: formHeight,
         onclone: function(clonedDoc) {
-          if (clonedSelect && originalSelect) {
-            const clonedSelect = clonedDoc.querySelector('#machine');
-            const originalSelect = document.getElementById('machine');
-         
-            if (clonedSelect && originalSelect) {
-              const selectedText = originalSelect.options[originalSelect.selectedIndex].text;
-              clonedSelect.style.display = 'block';  // Ensure visibility
-              clonedSelect.style.color = 'black';
-              clonedSelect.style.fontSize = '16px';
-              clonedSelect.style.fontWeight = 'bold';
-              clonedSelect.style.backgroundColor = 'white';
-              clonedSelect.setAttribute('data-value', selectedText);
-            }
-          }
+          const clonedSelect = clonedDoc.querySelector('#machine');
+   const originalSelect = document.getElementById('machine');
+
+   if (clonedSelect && originalSelect) {
+     const selectedText = originalSelect.options[originalSelect.selectedIndex].text;
+     clonedSelect.style.display = 'block';  // Ensure visibility
+     clonedSelect.style.color = 'black';
+     clonedSelect.style.fontSize = '16px';
+     clonedSelect.style.fontWeight = 'bold';
+     clonedSelect.style.backgroundColor = 'white';
+     clonedSelect.setAttribute('data-value', selectedText);
+   }
+          
           // Ensure text is visible in cloned inputs and contenteditable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.getAttribute('contenteditable') === 'true') {
