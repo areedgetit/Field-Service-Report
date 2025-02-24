@@ -147,6 +147,11 @@ document.addEventListener('DOMContentLoaded', function() {
         height: formHeight,
         windowHeight: formHeight,
         onclone: function(clonedDoc) {
+          const clonedSelect = clonedDoc.querySelector('#machine');
+          const originalSelect = document.getElementById('machine');
+          if (clonedSelect && originalSelect) {
+            clonedSelect.value = originalSelect.value; 
+        }
           // Ensure text is visible in cloned inputs and contenteditable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.getAttribute('contenteditable') === 'true') {
