@@ -46,8 +46,9 @@ span label {
    
    
 }
-#main-info label { display:flex;
-                    align-items:center;
+#main-info label { 
+    display:flex;
+    align-items:center;
 
 }
 
@@ -94,11 +95,12 @@ p {
     background-color: #fff;
     overflow-y: auto;
     max-height: 200px;
-    max-width: 194px;
+    width: 194px;
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
     box-sizing: border-box;
+    border-radius: 5px; 
 
 }
 textarea {
