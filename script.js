@@ -148,17 +148,22 @@ document.addEventListener('DOMContentLoaded', function() {
         windowHeight: formHeight,
         onclone: function(clonedDoc) {
           const clonedSelect = clonedDoc.querySelector('#machine');
-   const originalSelect = document.getElementById('machine');
-
-   if (clonedSelect && originalSelect) {
-     const selectedText = originalSelect.options[originalSelect.selectedIndex].text;
-     clonedSelect.style.display = 'block';  // Ensure visibility
-     clonedSelect.style.color = 'black';
-     clonedSelect.style.fontSize = '16px';
-     clonedSelect.style.fontWeight = 'bold';
-     clonedSelect.style.backgroundColor = 'white';
-     clonedSelect.setAttribute('data-value', selectedText);
-   }
+          const originalSelect = document.getElementById('machine');
+       
+          if (clonedSelect && originalSelect) {
+            // Get the selected option's text
+            const selectedText = originalSelect.options[originalSelect.selectedIndex].text;
+       
+            // Create a span to replace the select element
+            const spanReplacement = document.createElement('span');
+            spanReplacement.textContent = selectedText;
+            spanReplacement.style.color = 'black';
+            spanReplacement.style.fontSize = '16px';
+            spanReplacement.style.fontWeight = 'bold';
+       
+            // Replace the select element with the span
+            clonedSelect.parentNode.replaceChild(spanReplacement, clonedSelect);
+          }
           
           // Ensure text is visible in cloned inputs and contenteditable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
