@@ -96,6 +96,7 @@ p {
     overflow-y: auto;
     max-height: 200px;
     width: 194px;
+    max-width: 194px;
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
