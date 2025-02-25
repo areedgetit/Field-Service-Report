@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
   const inputDivs = document.querySelectorAll('.input-div');
-  const machine = document.getElementById('machine');
+  const machine = document.querySelector('input[name="machineType"]:checked');
   const number = document.getElementById('Machine-Number');
   const date = document.getElementById('date');
   const gang = document.getElementById('gang-number'); 
@@ -147,24 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
         height: formHeight,
         windowHeight: formHeight,
         onclone: function(clonedDoc) {
-          const clonedSelect = clonedDoc.querySelector('#machine');
-          const originalSelect = document.getElementById('machine');
-       
-          if (clonedSelect && originalSelect) {
-            // Get the selected option's text
-            const selectedText = originalSelect.options[originalSelect.selectedIndex].text;
-       
-            // Create a span to replace the select element
-            const spanReplacement = document.createElement('span');
-            spanReplacement.textContent = selectedText;
-            spanReplacement.style.color = 'black';
-            spanReplacement.style.fontSize = '16px';
-            spanReplacement.style.fontWeight = 'bold';
-       
-            // Replace the select element with the span
-            clonedSelect.parentNode.replaceChild(spanReplacement, clonedSelect);
-          }
-          
+                  
           // Ensure text is visible in cloned inputs and contenteditable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.getAttribute('contenteditable') === 'true') {

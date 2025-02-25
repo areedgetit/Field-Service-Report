@@ -22,13 +22,13 @@
                  <!--ask miguel what is required-->
                 <label class="Date">Date: <input type="date" id="date" name="date"></label>
                 </div>
-                <label for="machine">Machine Type:  <select id="machine" name="machine">
-                    <option value="">Choose One</option>
-                    <option value="RTP">RTP</option>
-                    <option value="TG">TG</option>
-                    <option value="CG">CG</option>
-                    <option value="TCG">TGC</option>
-                    <option value="Skid Mount">Skid Mount</option></select>
+                <label for="machine">Machine Type:  
+                    <input type="radio" name="machineType" id="RTP"> RTP  </input>
+                    <input type="radio" name="machineType" id="TG"> TG  </input>
+                    <input type="radio" name="machineType" id="CG"> GC  </input>
+                    <input type="radio" name="machineType" id="TGC"> TGC  </input>
+                    <input type="radio" name="machineType" id="skidMount"> Skid Mount</input>
+                </label>  
                         <label for="Machine-Number">Machine Number:  
                         <input type="number" id="Machine-Number" name="Machine-Number" max="4" required placeholder="Machine Number"></label>
                         <h4><u>PERSONNEL IN ATTENDANCE</u></h4>

@@ -31,7 +31,7 @@ input, select, button {
     
     padding: 10px;
     margin: 10px 0;
-    border: 1px solid #ccc;
+  
     border-radius: 5px;
 }
 
@@ -76,6 +76,7 @@ button {
     border: 1px solid #ccc;
     border-radius: 10px;
 }
+    
 
 input [for='appearance-good'] {
     display:inline-block
@@ -84,7 +85,10 @@ input [for='appearance-good'] {
 p {
     margin: 5px 0;
 }
-.input-div {  border: 1px solid #ccc;
+.input-div {  
+    border-width: 2px;
+    border-style: inset;
+    border-color: light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
     padding: 5px;
     min-height: 30px;
     white-space: pre-wrap;
