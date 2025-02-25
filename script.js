@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = document.getElementById('submitBtn');
   const inputDivs = document.querySelectorAll('.input-div');
-  const machine = document.querySelector('input[name="machineType"]:checked');
+  //const machine = document.querySelector('input[name="machineType"]:checked');
   const number = document.getElementById('Machine-Number');
   const date = document.getElementById('date');
   const gang = document.getElementById('gang-number'); 
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   submitBtn.addEventListener('click', function(event) {
     event.preventDefault();
-
+    const machine = document.querySelector('input[name="machineType"]:checked');
     // Add custom CSS styles when the submit button is clicked
     addCustomStyles();
 
