@@ -109,7 +109,7 @@ p {
 
 }
 textarea {
-    border: 1px solid #ccc;
+   /* border: 1px solid #ccc; */
     border-radius: 5px;
     overflow: hidden; /* Prevent scrollbars */
     resize: none; /* Disable manual resizing */
