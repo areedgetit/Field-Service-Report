@@ -106,6 +106,7 @@ p {
     overflow-wrap: break-word;
     box-sizing: border-box;
     border-radius: 5px; 
+    overflow: hidden;
 
 }
 textarea {
