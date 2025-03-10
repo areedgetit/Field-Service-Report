@@ -107,6 +107,7 @@ p {
     box-sizing: border-box;
     border-radius: 5px; 
     overflow: hidden;
+    padding-bottom: 40px;
 
 }
 textarea {

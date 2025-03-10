@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         max-height: 300px; /* Optional: set a maximum height */
         overflow-y: auto; /* Add scrollbar if content exceeds max-height */
         overflow: hidden;
-        padding-bottom: 10px;
+        padding-bottom: 40px;
       }
       #submitBtn {
         min-height: 30px !important;
