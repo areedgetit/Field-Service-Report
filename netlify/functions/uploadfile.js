@@ -6,7 +6,7 @@ exports.handler = async function (event, context) {
   const folderId = process.env.SHAREPOINT_FOLDER_ID;
 
   try {
-    // Get Access Token from Microsoft Identity Platform (OAuth 2.0)
+    // STEP 1: Get Access Token
     const tokenResponse = await fetch(
       `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
       {
@@ -23,21 +23,45 @@ exports.handler = async function (event, context) {
       }
     );
 
-    const tokenData = await tokenResponse.json();
+    const tokenRaw = await tokenResponse.text();
+    let tokenData;
+
+    try {
+      tokenData = JSON.parse(tokenRaw);
+    } catch (err) {
+      console.error('Failed to parse token response:', tokenRaw);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          message: 'Invalid token response from Microsoft',
+          raw: tokenRaw,
+        }),
+      };
+    }
+
+    if (!tokenResponse.ok || !tokenData.access_token) {
+      console.error('Token request failed:', tokenData);
+      return {
+        statusCode: tokenResponse.status,
+        body: JSON.stringify({
+          message: 'Failed to obtain access token',
+          response: tokenData,
+        }),
+      };
+    }
+
     const accessToken = tokenData.access_token;
 
+    // STEP 2: Prepare File
     const isBase64Encoded = event.isBase64Encoded;
     const fileContent = isBase64Encoded
       ? Buffer.from(event.body, 'base64')
       : event.body;
 
     const fileName = event.queryStringParameters?.fileName || 'uploadedFile.pdf';
-
     const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drives/${folderId}/root:/Documents/${fileName}:/content`;
 
-    console.log('Uploading to:', uploadUrl);
-    console.log('Access token starts with:', accessToken?.substring(0, 20));
-
+    // STEP 3: Upload File
     const uploadResponse = await fetch(uploadUrl, {
       method: 'PUT',
       headers: {
@@ -85,7 +109,7 @@ exports.handler = async function (event, context) {
     return {
       statusCode: 500,
       body: JSON.stringify({
-        message: 'Error uploading file',
+        message: 'Unexpected server error',
         error: error.message,
       }),
     };
