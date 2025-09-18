@@ -1,11 +1,43 @@
 exports.handler = async function (event, context) {
+  // Add CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+
+  // Handle preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: ''
+    };
+  }
+
   const clientId = process.env.CLIENT_ID;
   const clientSecret = process.env.CLIENT_SECRET;
   const tenantId = process.env.TENANT_ID;
   const sharepointSiteUrl = process.env.SHAREPOINT_SITE_URL;
   const folderId = process.env.SHAREPOINT_FOLDER_ID;
 
+  // Validate environment variables
+  if (!clientId || !clientSecret || !tenantId || !sharepointSiteUrl || !folderId) {
+    console.error('Missing required environment variables');
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        message: 'Server configuration error',
+        error: 'Missing required environment variables'
+      }),
+    };
+  }
+
   try {
+    console.log('Starting file upload process...');
+
     // STEP 1: Get Access Token
     const tokenResponse = await fetch(
       `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
@@ -24,17 +56,19 @@ exports.handler = async function (event, context) {
     );
 
     const tokenRaw = await tokenResponse.text();
-    let tokenData;
+    console.log('Token response status:', tokenResponse.status);
 
+    let tokenData;
     try {
       tokenData = JSON.parse(tokenRaw);
     } catch (err) {
       console.error('Failed to parse token response:', tokenRaw);
       return {
         statusCode: 500,
+        headers,
         body: JSON.stringify({
           message: 'Invalid token response from Microsoft',
-          raw: tokenRaw,
+          error: 'Token parsing failed'
         }),
       };
     }
@@ -43,23 +77,34 @@ exports.handler = async function (event, context) {
       console.error('Token request failed:', tokenData);
       return {
         statusCode: tokenResponse.status,
+        headers,
         body: JSON.stringify({
           message: 'Failed to obtain access token',
-          response: tokenData,
+          error: tokenData.error || 'Authentication failed'
         }),
       };
     }
 
     const accessToken = tokenData.access_token;
 
-    // STEP 2: Prepare File
-    const isBase64Encoded = event.isBase64Encoded;
-    const fileContent = isBase64Encoded
-      ? Buffer.from(event.body, 'base64')
-      : event.body;
+    // STEP 2: Prepare File - Fix body processing
+    let fileContent;
+    
+    if (event.isBase64Encoded) {
+      fileContent = Buffer.from(event.body, 'base64');
+    } else if (typeof event.body === 'string') {
+      // If body is a string, convert to buffer
+      fileContent = Buffer.from(event.body, 'binary');
+    } else {
+      // If body is already a buffer
+      fileContent = event.body;
+    }
 
     const fileName = event.queryStringParameters?.fileName || 'uploadedFile.pdf';
-    const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drives/${folderId}/root:/Documents/${fileName}:/content`;
+    console.log('Uploading file:', fileName, 'Size:', fileContent.length);
+
+    // Fix the SharePoint URL - use the correct endpoint
+    const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drives/${folderId}/root:/${fileName}:/content`;
 
     // STEP 3: Upload File
     const uploadResponse = await fetch(uploadUrl, {
@@ -72,12 +117,13 @@ exports.handler = async function (event, context) {
     });
 
     const uploadText = await uploadResponse.text();
-    let uploadResult;
+    console.log('Upload response status:', uploadResponse.status);
 
+    let uploadResult;
     try {
       uploadResult = JSON.parse(uploadText);
     } catch {
-      uploadResult = uploadText;
+      uploadResult = { rawResponse: uploadText };
     }
 
     if (!uploadResponse.ok) {
@@ -89,28 +135,34 @@ exports.handler = async function (event, context) {
 
       return {
         statusCode: uploadResponse.status,
+        headers,
         body: JSON.stringify({
           message: 'Upload failed',
-          status: uploadResponse.status,
-          response: uploadResult,
+          error: `SharePoint upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`,
+          details: uploadResult
         }),
       };
     }
 
+    console.log('File uploaded successfully');
     return {
       statusCode: 200,
+      headers,
       body: JSON.stringify({
         message: 'File uploaded successfully',
         data: uploadResult,
       }),
     };
+
   } catch (error) {
     console.error('Error during file upload:', error);
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({
         message: 'Unexpected server error',
         error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       }),
     };
   }

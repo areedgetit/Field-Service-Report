@@ -58,9 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
     inputDiv.style.height = inputDiv.scrollHeight + 'px';
   }
 
-
-
-
   // Loop through each inputDiv and add event listeners
   inputDivs.forEach(inputDiv => {
     inputDiv.addEventListener('input', function() {
@@ -191,6 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }, 100); // Adjust the delay if necessary
   });
+  
   sbmt.addEventListener('click', function(event) {
     event.preventDefault();
     const machine = document.querySelector('input[name="machineType"]:checked');
@@ -266,32 +264,36 @@ document.addEventListener('DOMContentLoaded', function() {
         //doc.save(fileName); can be added in if mechanics want copy downloaded
           
         // Convert the PDF to a Blob
-      const pdfBlob = doc.output('blob');
-      const formData = new FormData();
-      formData.append('file', pdfBlob, fileName);
-      // Upload the PDF to Netlify function
-      //const statusMessage = document.getElementById("statusMessage"); // Adjust based on your element ID
+        const pdfBlob = doc.output('blob');
 
-      fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/octet-stream',
-        },
-        body: pdfBlob, // Send the PDF as raw data
-      })
-      .then(response => response.json())
-      .then(result => {
-        if (result.message === 'File uploaded successfully') {
-            alert('PDF uploaded to SharePoint successfully!');
-        } else {
-            throw new Error(result.error || 'Upload failed');
-        }
+        // Upload the PDF to Netlify function with improved error handling
+        fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/pdf',
+          },
+          body: pdfBlob,
         })
-       .catch(error => {
-        console.error('Upload error:', error);
-        alert('Error uploading PDF: ' + error.message);
-        });                
-        
+        .then(response => {
+          // Check if response is ok before trying to parse JSON
+          if (!response.ok) {
+            return response.text().then(text => {
+              throw new Error(`HTTP ${response.status}: ${text}`);
+            });
+          }
+          return response.json();
+        })
+        .then(result => {
+          if (result.message === 'File uploaded successfully') {
+            alert('PDF uploaded to SharePoint successfully!');
+          } else {
+            throw new Error(result.error || 'Upload failed');
+          }
+        })
+        .catch(error => {
+          console.error('Upload error:', error);
+          alert('Error uploading PDF: ' + error.message);
+        });
         
         // Remove the temporary container
         document.body.removeChild(tempContainer);
@@ -313,6 +315,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       });
     }, 100); // Adjust the delay if necessary
-
   });
 });
