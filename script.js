@@ -2,11 +2,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const dwnBtn = document.getElementById('dwnBtn');
   const sbmt = document.getElementById('sbmt');
   const inputDivs = document.querySelectorAll('.input-div');
-  //const machine = document.querySelector('input[name="machineType"]:checked');
   const number = document.getElementById('Machine-Number');
   const date = document.getElementById('date');
   const gang = document.getElementById('gang-number'); 
-  // Function to add custom CSS styles
+
+  // Add custom CSS styles
   function addCustomStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 5px !important;
         border: 1px solid #ccc !important;
         box-sizing: border-box !important;
-        overflow: hidden; /* Prevent scrollbars */
-        resize: none; /* Disable manual resizing */
+        overflow: hidden;
+        resize: none;
       }
       .input-div {
         border: 1px solid #ccc;
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
         word-wrap: break-word;
         overflow-wrap: break-word;
         line-height: 1.5;
-        max-height: 300px; /* Optional: set a maximum height */
-        overflow-y: auto; /* Add scrollbar if content exceeds max-height */
+        max-height: 300px;
+        overflow-y: auto;
         overflow: hidden;
         padding-bottom: 40px;
       }
@@ -41,8 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 5px !important;
         border: 1px solid #ccc !important;
         box-sizing: border-box !important;
-        overflow: hidden; /* Prevent scrollbars */
-        resize: none; /* Disable manual resizing */  
+        overflow: hidden;
+        resize: none;  
       }  
       #main-info label > input[type="checkbox"] {
         margin-left: 5px; 
@@ -52,37 +52,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(style);
   }
 
-  // Function to adjust height of contenteditable div
+  // Adjust height for contenteditable divs
   function adjustHeight(inputDiv) {
     inputDiv.style.height = 'auto';
     inputDiv.style.height = inputDiv.scrollHeight + 'px';
   }
 
-
-
-
-  // Loop through each inputDiv and add event listeners
   inputDivs.forEach(inputDiv => {
-    inputDiv.addEventListener('input', function() {
-      adjustHeight(inputDiv); // Pass the current inputDiv
-    });
-
-    inputDiv.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.focus();
-    });
-
-    inputDiv.addEventListener('mousedown', function(e) {
-      e.preventDefault();
-      this.focus();
-    });
-
-    // Initial call to set the correct height
+    inputDiv.addEventListener('input', () => adjustHeight(inputDiv));
+    inputDiv.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); inputDiv.focus(); });
+    inputDiv.addEventListener('mousedown', e => { e.preventDefault(); inputDiv.focus(); });
     adjustHeight(inputDiv);
   });
 
-  // Function to auto-resize textareas
   function autoResizeTextareas() {
     const textareas = document.querySelectorAll('textarea');
     textareas.forEach(textarea => {
@@ -93,27 +75,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Initialize auto-resizing on textareas
   autoResizeTextareas();
 
-  dwnBtn.addEventListener('click', function(event) {
-    event.preventDefault();
-    const machine = document.querySelector('input[name="machineType"]:checked');
-    // Add custom CSS styles when the submit button is clicked
+  function generateAndUploadPDF(machine) {
     addCustomStyles();
-
     const form = document.querySelector('form');
 
-    // Apply custom class to all input, select, textarea, and contenteditable elements
     form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => {
       el.classList.add('pdf-input');
     });
 
-    // Get the full height of the form
     const formHeight = form.scrollHeight;
     const formWidth = form.offsetWidth;
 
-    // Create a temporary container
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'absolute';
     tempContainer.style.top = '0';
@@ -123,19 +97,14 @@ document.addEventListener('DOMContentLoaded', function() {
     tempContainer.style.overflow = 'hidden';
     tempContainer.style.pointerEvents = 'none';
 
-    // Clone the form and append it to the temporary container
     const clonedForm = form.cloneNode(true);
     tempContainer.appendChild(clonedForm);
     document.body.appendChild(tempContainer);
 
-    // Delay to ensure everything is rendered properly
-    setTimeout(() => {
-      // Calculate aspect ratio
+    setTimeout(async () => {
       const aspectRatio = formHeight / formWidth;
-
-      // Set up PDF dimensions
       const { jsPDF } = window.jspdf;
-      const pdfWidth = 210; // A4 width in mm
+      const pdfWidth = 210;
       const pdfHeight = pdfWidth * aspectRatio;
       const doc = new jsPDF({
         orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
@@ -150,13 +119,10 @@ document.addEventListener('DOMContentLoaded', function() {
         height: formHeight,
         windowHeight: formHeight,
         onclone: function(clonedDoc) {
-                  
-          // Ensure text is visible in cloned inputs and contenteditable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.getAttribute('contenteditable') === 'true') {
               el.style.color = 'black';
               el.style.fontSize = '16px';
-              // Ensure the content of the div is preserved
               el.textContent = el.textContent;
             } else if (el.value) {
               el.style.color = 'black';
@@ -164,155 +130,57 @@ document.addEventListener('DOMContentLoaded', function() {
             }
           });
         }
-      }).then(canvas => {
+      }).then(async canvas => {
         const imgData = canvas.toDataURL('image/png');
         doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`
-        doc.save(fileName);
 
-        // Remove the temporary container
-        document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
+        const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`;
+        const pdfBlob = doc.output('blob');
+
+        console.log("Uploading PDF:", fileName);
+
+        try {
+          const response = await fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/pdf' },
+            body: pdfBlob
+          });
+
+          const text = await response.text();
+          let result;
+          try { result = JSON.parse(text); } catch { result = { message: text }; }
+
+          if (!response.ok) throw new Error(result.message || `Upload failed (${response.status})`);
+
+          console.log("Upload successful:", result);
+          alert(result.message || 'PDF uploaded successfully!');
+        } catch (error) {
+          console.error("Upload error:", error);
+          alert("Error uploading PDF: " + error.message);
+        } finally {
+          document.body.removeChild(tempContainer);
+          form.querySelectorAll('.pdf-input').forEach(el => el.classList.remove('pdf-input'));
+        }
       }).catch(error => {
-        console.error('Error in html2canvas operation:', error);
-        alert('An error occurred while generating the PDF. Please check the console for more details.');
-        
-        // Remove the temporary container in case of error
+        console.error("html2canvas error:", error);
+        alert("Error generating PDF: " + error.message);
         document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
+        form.querySelectorAll('.pdf-input').forEach(el => el.classList.remove('pdf-input'));
       });
-    }, 100); // Adjust the delay if necessary
+    }, 100);
+  }
+
+  dwnBtn.addEventListener('click', e => {
+    e.preventDefault();
+    const machine = document.querySelector('input[name="machineType"]:checked');
+    if (!machine) { alert("Please select a machine type"); return; }
+    generateAndUploadPDF(machine);
   });
-  sbmt.addEventListener('click', function(event) {
-    event.preventDefault();
+
+  sbmt.addEventListener('click', e => {
+    e.preventDefault();
     const machine = document.querySelector('input[name="machineType"]:checked');
-    // Add custom CSS styles when the submit button is clicked
-    addCustomStyles();
-
-    const form = document.querySelector('form');
-
-    // Apply custom class to all input, select, textarea, and contenteditable elements
-    form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => {
-      el.classList.add('pdf-input');
-    });
-
-    // Get the full height of the form
-    const formHeight = form.scrollHeight;
-    const formWidth = form.offsetWidth;
-
-    // Create a temporary container
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.top = '0';
-    tempContainer.style.left = '0';
-    tempContainer.style.width = formWidth + 'px';
-    tempContainer.style.height = formHeight + 'px';
-    tempContainer.style.overflow = 'hidden';
-    tempContainer.style.pointerEvents = 'none';
-
-    // Clone the form and append it to the temporary container
-    const clonedForm = form.cloneNode(true);
-    tempContainer.appendChild(clonedForm);
-    document.body.appendChild(tempContainer);
-
-    // Delay to ensure everything is rendered properly
-    setTimeout(() => {
-      // Calculate aspect ratio
-      const aspectRatio = formHeight / formWidth;
-
-      // Set up PDF dimensions
-      const { jsPDF } = window.jspdf;
-      const pdfWidth = 210; // A4 width in mm
-      const pdfHeight = pdfWidth * aspectRatio;
-      const doc = new jsPDF({
-        orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
-        unit: 'mm',
-        format: [pdfWidth, pdfHeight]
-      });
-
-      html2canvas(tempContainer, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        height: formHeight,
-        windowHeight: formHeight,
-        onclone: function(clonedDoc) {
-                  
-          // Ensure text is visible in cloned inputs and contenteditable divs
-          clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
-            if (el.getAttribute('contenteditable') === 'true') {
-              el.style.color = 'black';
-              el.style.fontSize = '16px';
-              // Ensure the content of the div is preserved
-              el.textContent = el.textContent;
-            } else if (el.value) {
-              el.style.color = 'black';
-              el.style.fontSize = '16px';
-            }
-          });
-        }
-      }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`
-        //doc.save(fileName); can be added in if mechanics want copy downloaded
-          
-        // Convert the PDF to a Blob
-      const pdfBlob = doc.output('blob');
-      const formData = new FormData();
-      formData.append('file', pdfBlob, fileName);
-      // Upload the PDF to Netlify function
-      //const statusMessage = document.getElementById("statusMessage"); // Adjust based on your element ID
-
-      fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/octet-stream',
-        },
-        body: pdfBlob, // Send the PDF as raw data
-      })
-      .then(response => response.json())
-      .then(result => {
-        if (result.message === 'File uploaded successfully') {
-            alert('PDF uploaded to SharePoint successfully!');
-        } else {
-            throw new Error(result.error || 'Upload failed');
-        }
-        })
-       .catch(error => {
-        console.error('Upload error:', error);
-        alert('Error uploading PDF: ' + error.message);
-        });                
-        
-        
-        // Remove the temporary container
-        document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
-      }).catch(error => {
-        console.error('Error in html2canvas operation:', error);
-        alert('An error occurred while generating the PDF. Please check the console for more details.');
-        
-        // Remove the temporary container in case of error
-        document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
-      });
-    }, 100); // Adjust the delay if necessary
-
+    if (!machine) { alert("Please select a machine type"); return; }
+    generateAndUploadPDF(machine);
   });
 });
