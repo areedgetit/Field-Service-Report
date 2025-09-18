@@ -271,15 +271,19 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('PDF blob size:', pdfBlob.size);
         console.log('PDF blob type:', pdfBlob.type);
         
-        // First, let's try with just a simple test string instead of the PDF
-        const testData = "test-pdf-data";
+        // Check if PDF is too large (Netlify functions have limits)
+        const maxSize = 10 * 1024 * 1024; // 10MB limit
+        if (pdfBlob.size > maxSize) {
+          alert(`PDF is too large (${Math.round(pdfBlob.size / 1024 / 1024)}MB). Maximum size is ${maxSize / 1024 / 1024}MB.`);
+          return;
+        }
         
         fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'text/plain', // Change to text/plain for testing
+            'Content-Type': 'application/pdf',
           },
-          body: testData, // Send simple string instead of blob
+          body: pdfBlob, // Back to sending the actual PDF
         })
         .then(response => {
           console.log('Got response from function:', response.status, response.statusText);

@@ -1,9 +1,7 @@
 exports.handler = async function (event, context) {
   console.log('=== FUNCTION START ===');
   console.log('HTTP Method:', event.httpMethod);
-  console.log('Path:', event.path);
-  console.log('Query params:', JSON.stringify(event.queryStringParameters));
-  console.log('Headers:', JSON.stringify(event.headers, null, 2));
+  console.log('Content-Type:', event.headers['content-type']);
   console.log('Body length:', event.body ? event.body.length : 'No body');
   console.log('Is base64 encoded:', event.isBase64Encoded);
   
@@ -25,7 +23,7 @@ exports.handler = async function (event, context) {
       };
     }
 
-    // Handle GET requests (for direct browser testing)
+    // Handle GET requests
     if (event.httpMethod === 'GET') {
       console.log('Handling GET request');
       return {
@@ -38,39 +36,157 @@ exports.handler = async function (event, context) {
       };
     }
 
-    // Handle POST requests
+    // Handle POST requests - Full SharePoint upload
     if (event.httpMethod === 'POST') {
-      console.log('Handling POST request');
+      console.log('=== HANDLING POST REQUEST ===');
       
-      const fileName = event.queryStringParameters?.fileName || 'test-file.pdf';
-      console.log('Target filename:', fileName);
-      
-      let bodyInfo = 'No body';
-      if (event.body) {
-        bodyInfo = `Body length: ${event.body.length}, First 50 chars: ${event.body.substring(0, 50)}`;
+      // Check environment variables
+      const clientId = process.env.CLIENT_ID;
+      const clientSecret = process.env.CLIENT_SECRET;
+      const tenantId = process.env.TENANT_ID;
+      const sharepointSiteUrl = process.env.SHAREPOINT_SITE_URL;
+      const folderId = process.env.SHAREPOINT_FOLDER_ID;
+
+      console.log('Environment check:');
+      console.log('CLIENT_ID:', clientId ? 'SET' : 'MISSING');
+      console.log('CLIENT_SECRET:', clientSecret ? 'SET' : 'MISSING');
+      console.log('TENANT_ID:', tenantId ? 'SET' : 'MISSING');
+      console.log('SHAREPOINT_SITE_URL:', sharepointSiteUrl || 'MISSING');
+      console.log('SHAREPOINT_FOLDER_ID:', folderId ? 'SET' : 'MISSING');
+
+      if (!clientId || !clientSecret || !tenantId || !sharepointSiteUrl || !folderId) {
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            error: 'Missing required environment variables'
+          })
+        };
       }
-      console.log('Body info:', bodyInfo);
-      
-      // Just return success for now - don't actually upload to SharePoint
-      const response = {
+
+      // Get filename
+      const fileName = event.queryStringParameters?.fileName || 'uploadedFile.pdf';
+      console.log('Target filename:', fileName);
+
+      // Check if we have body data
+      if (!event.body) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({
+            error: 'No file data provided'
+          })
+        };
+      }
+
+      // Process file content
+      console.log('Processing file content...');
+      let fileContent;
+      try {
+        if (event.isBase64Encoded) {
+          fileContent = Buffer.from(event.body, 'base64');
+        } else {
+          // For binary data, Netlify often sends as base64 even when not marked
+          fileContent = Buffer.from(event.body, 'base64');
+        }
+        console.log('File buffer created, length:', fileContent.length);
+      } catch (error) {
+        console.error('Error processing file:', error.message);
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({
+            error: 'Failed to process file data',
+            details: error.message
+          })
+        };
+      }
+
+      // Get access token
+      console.log('=== GETTING ACCESS TOKEN ===');
+      const tokenResponse = await fetch(
+        `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            client_id: clientId,
+            client_secret: clientSecret,
+            grant_type: 'client_credentials',
+            scope: 'https://graph.microsoft.com/.default',
+          }),
+        }
+      );
+
+      const tokenData = await tokenResponse.json();
+      console.log('Token request status:', tokenResponse.status);
+
+      if (!tokenResponse.ok || !tokenData.access_token) {
+        console.error('Token request failed:', tokenData);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            error: 'Authentication failed',
+            details: tokenData
+          })
+        };
+      }
+
+      console.log('Access token obtained');
+
+      // Upload to SharePoint
+      console.log('=== UPLOADING TO SHAREPOINT ===');
+      const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drives/${folderId}/root:/${fileName}:/content`;
+      console.log('Upload URL:', uploadUrl);
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${tokenData.access_token}`,
+          'Content-Type': 'application/pdf',
+        },
+        body: fileContent,
+      });
+
+      console.log('Upload response status:', uploadResponse.status);
+      const uploadText = await uploadResponse.text();
+
+      let uploadResult;
+      try {
+        uploadResult = JSON.parse(uploadText);
+      } catch {
+        uploadResult = { rawResponse: uploadText };
+      }
+
+      if (!uploadResponse.ok) {
+        console.error('Upload failed:', uploadResponse.status, uploadResult);
+        return {
+          statusCode: uploadResponse.status,
+          headers,
+          body: JSON.stringify({
+            error: 'SharePoint upload failed',
+            status: uploadResponse.status,
+            details: uploadResult
+          })
+        };
+      }
+
+      console.log('=== UPLOAD SUCCESSFUL ===');
+      return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
-          message: 'POST request received successfully!',
+          message: 'File uploaded successfully',
           fileName: fileName,
-          bodyReceived: !!event.body,
-          bodyLength: event.body ? event.body.length : 0,
-          contentType: event.headers['content-type'] || 'Not specified',
-          timestamp: new Date().toISOString()
+          data: uploadResult
         })
       };
-      
-      console.log('Returning successful POST response');
-      return response;
     }
 
     // Handle other methods
-    console.log('Unsupported method:', event.httpMethod);
     return {
       statusCode: 405,
       headers,
@@ -82,17 +198,15 @@ exports.handler = async function (event, context) {
 
   } catch (error) {
     console.error('=== FUNCTION ERROR ===');
-    console.error('Error name:', error.name);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
+    console.error('Error:', error.message);
+    console.error('Stack:', error.stack);
     
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
-        error: 'Function error',
-        message: error.message,
-        name: error.name
+        error: 'Unexpected server error',
+        message: error.message
       })
     };
   }
