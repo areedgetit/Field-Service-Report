@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function() {
   const dwnBtn = document.getElementById('dwnBtn');
   const sbmt = document.getElementById('sbmt');
@@ -278,6 +279,9 @@ document.addEventListener('DOMContentLoaded', function() {
           // Check if response is ok before trying to parse JSON
           if (!response.ok) {
             return response.text().then(text => {
+              console.log('Full error response:', text);
+              console.log('Response status:', response.status);
+              console.log('Response headers:', response.headers);
               throw new Error(`HTTP ${response.status}: ${text}`);
             });
           }
