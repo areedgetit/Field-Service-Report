@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Upload the PDF to Netlify function
       //const statusMessage = document.getElementById("statusMessage"); // Adjust based on your element ID
 
-      fetch(`/.netlify/functions/uploadFile?fileName=${encodeURIComponent(fileName)}`, {
+      fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/octet-stream',
