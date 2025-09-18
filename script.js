@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
   const dwnBtn = document.getElementById('dwnBtn');
   const sbmt = document.getElementById('sbmt');
@@ -268,6 +267,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const pdfBlob = doc.output('blob');
 
         // Upload the PDF to Netlify function with improved error handling
+        console.log('Starting upload to function...');
+        
         fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
           method: 'POST',
           headers: {
@@ -276,16 +277,26 @@ document.addEventListener('DOMContentLoaded', function() {
           body: pdfBlob,
         })
         .then(response => {
-          // Check if response is ok before trying to parse JSON
-          if (!response.ok) {
-            return response.text().then(text => {
-              console.log('Full error response:', text);
-              console.log('Response status:', response.status);
-              console.log('Response headers:', response.headers);
+          console.log('Got response from function:', response.status, response.statusText);
+          console.log('Response ok:', response.ok);
+          console.log('Response headers:', [...response.headers.entries()]);
+          
+          // Try to get response as text first to see what we're getting
+          return response.text().then(text => {
+            console.log('Raw response text:', text);
+            
+            if (!response.ok) {
               throw new Error(`HTTP ${response.status}: ${text}`);
-            });
-          }
-          return response.json();
+            }
+            
+            // Try to parse as JSON
+            try {
+              return JSON.parse(text);
+            } catch (parseError) {
+              console.error('Failed to parse JSON:', parseError);
+              throw new Error(`Invalid JSON response: ${text}`);
+            }
+          });
         })
         .then(result => {
           if (result.message === 'File uploaded successfully') {
