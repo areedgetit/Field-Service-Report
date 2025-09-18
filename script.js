@@ -9,44 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
   function addCustomStyles() {
     const style = document.createElement('style');
     style.textContent = `
-      .pdf-input {
-        min-height: 30px !important;
-        line-height: 30px !important;
-        padding: 5px !important;
-        margin-bottom: 5px !important;
-        border: 1px solid #ccc !important;
-        box-sizing: border-box !important;
-        overflow: hidden;
-        resize: none;
-      }
-      .input-div {
-        border: 1px solid #ccc;
-        padding: 5px;
-        min-height: 30px;
-        width: 300px; 
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        line-height: 1.5;
-        max-height: 300px;
-        overflow-y: auto;
-        overflow: hidden;
-        padding-bottom: 40px;
-      }
-      #submitBtn {
-        min-height: 30px !important;
-        line-height: 30px !important;
-        padding: 5px !important;
-        margin-bottom: 5px !important;
-        border: 1px solid #ccc !important;
-        box-sizing: border-box !important;
-        overflow: hidden;
-        resize: none;  
-      }  
-      #main-info label > input[type="checkbox"] {
-        margin-left: 5px; 
-        margin-top: 20px;
-      }  
+      .pdf-input { min-height:30px!important; line-height:30px!important; padding:5px!important; margin-bottom:5px!important; border:1px solid #ccc!important; box-sizing:border-box!important; overflow:hidden; resize:none; }
+      .input-div { border:1px solid #ccc; padding:5px; min-height:30px; width:300px; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:break-word; line-height:1.5; max-height:300px; overflow-y:auto; overflow:hidden; padding-bottom:40px; }
+      #submitBtn { min-height:30px!important; line-height:30px!important; padding:5px!important; margin-bottom:5px!important; border:1px solid #ccc!important; box-sizing:border-box!important; overflow:hidden; resize:none; }
+      #main-info label > input[type="checkbox"] { margin-left:5px; margin-top:20px; }
     `;
     document.head.appendChild(style);
   }
@@ -79,10 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!machine) { alert("Please select a machine type"); return; }
     addCustomStyles();
     const form = document.querySelector('form');
-
-    form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => {
-      el.classList.add('pdf-input');
-    });
+    form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => el.classList.add('pdf-input'));
 
     const formHeight = form.scrollHeight;
     const formWidth = form.offsetWidth;
@@ -134,11 +97,13 @@ document.addEventListener('DOMContentLoaded', function() {
         doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
         const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`;
-        const pdfBlob = doc.output('blob');
-
         // Download PDF locally
         doc.save(fileName);
         console.log("Downloaded PDF:", fileName);
+
+        // Convert PDF to base64 string
+        const pdfDataUrl = doc.output('datauristring');
+        const base64 = pdfDataUrl.split(',')[1]; // remove data:application/pdf;base64,
 
         // Upload PDF to Netlify
         try {
@@ -146,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const response = await fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/pdf' },
-            body: pdfBlob
+            body: base64
           });
 
           const text = await response.text();
@@ -172,15 +137,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
   }
 
-  dwnBtn.addEventListener('click', e => {
-    e.preventDefault();
-    const machine = document.querySelector('input[name="machineType"]:checked');
-    generateAndUploadPDF(machine);
-  });
-
-  sbmt.addEventListener('click', e => {
-    e.preventDefault();
-    const machine = document.querySelector('input[name="machineType"]:checked');
-    generateAndUploadPDF(machine);
-  });
+  dwnBtn.addEventListener('click', e => { e.preventDefault(); const machine = document.querySelector('input[name="machineType"]:checked'); generateAndUploadPDF(machine); });
+  sbmt.addEventListener('click', e => { e.preventDefault(); const machine = document.querySelector('input[name="machineType"]:checked'); generateAndUploadPDF(machine); });
 });
