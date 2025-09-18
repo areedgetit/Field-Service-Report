@@ -268,13 +268,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Upload the PDF to Netlify function with improved error handling
         console.log('Starting upload to function...');
+        console.log('PDF blob size:', pdfBlob.size);
+        console.log('PDF blob type:', pdfBlob.type);
+        
+        // First, let's try with just a simple test string instead of the PDF
+        const testData = "test-pdf-data";
         
         fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/pdf',
+            'Content-Type': 'text/plain', // Change to text/plain for testing
           },
-          body: pdfBlob,
+          body: testData, // Send simple string instead of blob
         })
         .then(response => {
           console.log('Got response from function:', response.status, response.statusText);
