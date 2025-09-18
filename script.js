@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const date = document.getElementById('date');
   const gang = document.getElementById('gang-number'); 
 
-  // Add custom CSS styles
   function addCustomStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -52,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(style);
   }
 
-  // Adjust height for contenteditable divs
   function adjustHeight(inputDiv) {
     inputDiv.style.height = 'auto';
     inputDiv.style.height = inputDiv.scrollHeight + 'px';
@@ -77,7 +75,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   autoResizeTextareas();
 
-  function generateAndUploadPDF(machine) {
+  async function generateAndUploadPDF(machine) {
+    if (!machine) { alert("Please select a machine type"); return; }
     addCustomStyles();
     const form = document.querySelector('form');
 
@@ -137,9 +136,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`;
         const pdfBlob = doc.output('blob');
 
-        console.log("Uploading PDF:", fileName);
+        // Download PDF locally
+        doc.save(fileName);
+        console.log("Downloaded PDF:", fileName);
 
+        // Upload PDF to Netlify
         try {
+          console.log("Uploading PDF:", fileName);
           const response = await fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/pdf' },
@@ -151,7 +154,6 @@ document.addEventListener('DOMContentLoaded', function() {
           try { result = JSON.parse(text); } catch { result = { message: text }; }
 
           if (!response.ok) throw new Error(result.message || `Upload failed (${response.status})`);
-
           console.log("Upload successful:", result);
           alert(result.message || 'PDF uploaded successfully!');
         } catch (error) {
@@ -173,14 +175,12 @@ document.addEventListener('DOMContentLoaded', function() {
   dwnBtn.addEventListener('click', e => {
     e.preventDefault();
     const machine = document.querySelector('input[name="machineType"]:checked');
-    if (!machine) { alert("Please select a machine type"); return; }
     generateAndUploadPDF(machine);
   });
 
   sbmt.addEventListener('click', e => {
     e.preventDefault();
     const machine = document.querySelector('input[name="machineType"]:checked');
-    if (!machine) { alert("Please select a machine type"); return; }
     generateAndUploadPDF(machine);
   });
 });
