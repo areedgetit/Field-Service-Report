@@ -262,29 +262,54 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 
       html2canvas(tempContainer, {
-        scale: 2,
+        scale: 1, // Reduced from 2 - this will cut size by ~75%
         useCORS: true,
         allowTaint: true,
         height: formHeight,
         windowHeight: formHeight,
+        quality: 0.8, // Add quality setting to reduce file size
+        backgroundColor: '#ffffff', // Ensure white background
         onclone: function(clonedDoc) {
                   
           // Ensure text is visible in cloned inputs and contenteditable divs
           clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
             if (el.getAttribute('contenteditable') === 'true') {
               el.style.color = 'black';
-              el.style.fontSize = '16px';
+              el.style.fontSize = '14px'; // Slightly smaller font
               // Ensure the content of the div is preserved
               el.textContent = el.textContent;
             } else if (el.value) {
               el.style.color = 'black';
-              el.style.fontSize = '16px';
+              el.style.fontSize = '14px'; // Slightly smaller font
             }
           });
         }
       }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        const imgData = canvas.toDataURL('image/jpeg', 0.7); // Use JPEG with 70% quality instead of PNG
+        
+        // Adjust PDF dimensions to be more reasonable
+        const maxPdfWidth = 210; // A4 width
+        const maxPdfHeight = 297; // A4 height
+        
+        let pdfWidth, pdfHeight;
+        if (aspectRatio > 1) {
+          // Tall document
+          pdfHeight = maxPdfHeight;
+          pdfWidth = maxPdfHeight / aspectRatio;
+        } else {
+          // Wide document  
+          pdfWidth = maxPdfWidth;
+          pdfHeight = maxPdfWidth * aspectRatio;
+        }
+        
+        const doc = new jsPDF({
+          orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+          unit: 'mm',
+          format: [pdfWidth, pdfHeight],
+          compress: true // Enable PDF compression
+        });
+
+        doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM'); // Use MEDIUM compression
         const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`
         //doc.save(fileName); can be added in if mechanics want copy downloaded
           
