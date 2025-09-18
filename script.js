@@ -41,8 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   autoResizeTextareas();
 
-  async function generateAndUploadPDF(machine) {
-    if (!machine) { alert("Please select a machine type"); return; }
+  // Function to generate PDF (returns jsPDF instance)
+  async function generatePDF(machine) {
+    if (!machine) { alert("Please select a machine type"); return null; }
     addCustomStyles();
     const form = document.querySelector('form');
     form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => el.classList.add('pdf-input'));
@@ -63,80 +64,95 @@ document.addEventListener('DOMContentLoaded', function() {
     tempContainer.appendChild(clonedForm);
     document.body.appendChild(tempContainer);
 
-    setTimeout(async () => {
-      const aspectRatio = formHeight / formWidth;
-      const { jsPDF } = window.jspdf;
-      const pdfWidth = 210;
-      const pdfHeight = pdfWidth * aspectRatio;
-      const doc = new jsPDF({
-        orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
-        unit: 'mm',
-        format: [pdfWidth, pdfHeight]
-      });
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const aspectRatio = formHeight / formWidth;
+        const { jsPDF } = window.jspdf;
+        const pdfWidth = 210;
+        const pdfHeight = pdfWidth * aspectRatio;
+        const doc = new jsPDF({
+          orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+          unit: 'mm',
+          format: [pdfWidth, pdfHeight]
+        });
 
-      html2canvas(tempContainer, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        height: formHeight,
-        windowHeight: formHeight,
-        onclone: function(clonedDoc) {
-          clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
-            if (el.getAttribute('contenteditable') === 'true') {
-              el.style.color = 'black';
-              el.style.fontSize = '16px';
-              el.textContent = el.textContent;
-            } else if (el.value) {
-              el.style.color = 'black';
-              el.style.fontSize = '16px';
-            }
-          });
-        }
-      }).then(async canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-
-        const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`;
-        // Download PDF locally
-        doc.save(fileName);
-        console.log("Downloaded PDF:", fileName);
-
-        // Convert PDF to base64 string
-        const pdfDataUrl = doc.output('datauristring');
-        const base64 = pdfDataUrl.split(',')[1]; // remove data:application/pdf;base64,
-
-        // Upload PDF to Netlify
-        try {
-          console.log("Uploading PDF:", fileName);
-          const response = await fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/pdf' },
-            body: base64
-          });
-
-          const text = await response.text();
-          let result;
-          try { result = JSON.parse(text); } catch { result = { message: text }; }
-
-          if (!response.ok) throw new Error(result.message || `Upload failed (${response.status})`);
-          console.log("Upload successful:", result);
-          alert(result.message || 'PDF uploaded successfully!');
-        } catch (error) {
-          console.error("Upload error:", error);
-          alert("Error uploading PDF: " + error.message);
-        } finally {
+        html2canvas(tempContainer, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          height: formHeight,
+          windowHeight: formHeight,
+          onclone: function(clonedDoc) {
+            clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
+              if (el.getAttribute('contenteditable') === 'true') {
+                el.style.color = 'black';
+                el.style.fontSize = '16px';
+                el.textContent = el.textContent;
+              } else if (el.value) {
+                el.style.color = 'black';
+                el.style.fontSize = '16px';
+              }
+            });
+          }
+        }).then(() => {
           document.body.removeChild(tempContainer);
           form.querySelectorAll('.pdf-input').forEach(el => el.classList.remove('pdf-input'));
-        }
-      }).catch(error => {
-        console.error("html2canvas error:", error);
-        alert("Error generating PDF: " + error.message);
-        document.body.removeChild(tempContainer);
-        form.querySelectorAll('.pdf-input').forEach(el => el.classList.remove('pdf-input'));
-      });
-    }, 100);
+          resolve(doc);
+        }).catch(error => {
+          document.body.removeChild(tempContainer);
+          form.querySelectorAll('.pdf-input').forEach(el => el.classList.remove('pdf-input'));
+          reject(error);
+        });
+      }, 100);
+    });
   }
 
-  dwnBtn.addEventListener('click', e => { e.preventDefault(); const machine = document.querySelector('input[name="machineType"]:checked'); generateAndUploadPDF(machine); });
-  sbmt.addEventListener('click', e => { e.preventDefault(); const machine = document.querySelector('input[name="machineType"]:checked'); generateAndUploadPDF(machine); });
+  // Download button: generate and download PDF
+  dwnBtn.addEventListener('click', async e => {
+    e.preventDefault();
+    const machine = document.querySelector('input[name="machineType"]:checked');
+    try {
+      const doc = await generatePDF(machine);
+      if (!doc) return;
+      const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`;
+      doc.save(fileName);
+      console.log("Downloaded PDF:", fileName);
+    } catch (error) {
+      console.error("Error generating PDF for download:", error);
+      alert("Error generating PDF: " + error.message);
+    }
+  });
+
+  // Submit button: generate PDF and upload to SharePoint
+  sbmt.addEventListener('click', async e => {
+    e.preventDefault();
+    const machine = document.querySelector('input[name="machineType"]:checked');
+    try {
+      const doc = await generatePDF(machine);
+      if (!doc) return;
+      const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`;
+
+      const pdfDataUrl = doc.output('datauristring');
+      const base64 = pdfDataUrl.split(',')[1]; // base64 only
+
+      console.log("Uploading PDF:", fileName);
+
+      const response = await fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/pdf' },
+        body: base64
+      });
+
+      const text = await response.text();
+      let result;
+      try { result = JSON.parse(text); } catch { result = { message: text }; }
+
+      if (!response.ok) throw new Error(result.message || `Upload failed (${response.status})`);
+      console.log("Upload successful:", result);
+      alert(result.message || 'PDF uploaded successfully!');
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Error uploading PDF: " + error.message);
+    }
+  });
 });
