@@ -140,7 +140,7 @@ exports.handler = async function (event, context) {
       // Upload to SharePoint
       console.log('=== UPLOADING TO SHAREPOINT ===');
       //const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drives/${folderId}/root:/${fileName}:/content`;
-      const uploadUrl = `https://graph.microsoft.com/v1.0/${sharepointSiteUrl}/sites/Encore/Shared Documents/${fileName}:/content`;
+      const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/Shared Documents/${fileName}:/content`;
       console.log('Upload URL:', uploadUrl);
 
       const uploadResponse = await fetch(uploadUrl, {
