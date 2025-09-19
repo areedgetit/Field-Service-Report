@@ -137,6 +137,100 @@ exports.handler = async function (event, context) {
 
       console.log('Access token obtained');
 
+      // TEST SITE ACCESS FIRST
+      console.log('=== TESTING SITE ACCESS ===');
+      try {
+        const testResponse = await fetch(
+          `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}`,
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${tokenData.access_token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        console.log('Site access test status:', testResponse.status);
+        const testData = await testResponse.json();
+        console.log('Site access test response:', JSON.stringify(testData, null, 2));
+        
+        if (testResponse.ok) {
+          console.log('✅ Site access successful!');
+          console.log('Site name:', testData.displayName);
+          console.log('Site ID:', testData.id);
+        } else {
+          console.log('❌ Site access failed:', testData);
+          return {
+            statusCode: testResponse.status,
+            headers,
+            body: JSON.stringify({
+              error: 'Site access test failed - check permissions',
+              status: testResponse.status,
+              details: testData
+            })
+          };
+        }
+      } catch (error) {
+        console.log('Site access test error:', error.message);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            error: 'Site access test failed with exception',
+            details: error.message
+          })
+        };
+      }
+
+      // TEST DRIVE ACCESS
+      console.log('=== TESTING DRIVE ACCESS ===');
+      try {
+        const driveResponse = await fetch(
+          `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drive`,
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${tokenData.access_token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        console.log('Drive access test status:', driveResponse.status);
+        const driveData = await driveResponse.json();
+        console.log('Drive access test response:', JSON.stringify(driveData, null, 2));
+        
+        if (driveResponse.ok) {
+          console.log('✅ Drive access successful!');
+          console.log('Drive name:', driveData.name);
+          console.log('Drive ID:', driveData.id);
+        } else {
+          console.log('❌ Drive access failed:', driveData);
+          return {
+            statusCode: driveResponse.status,
+            headers,
+            body: JSON.stringify({
+              error: 'Drive access test failed - check permissions',
+              status: driveResponse.status,
+              details: driveData
+            })
+          };
+        }
+      } catch (error) {
+        console.log('Drive access test error:', error.message);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            error: 'Drive access test failed with exception',
+            details: error.message
+          })
+        };
+      }
+
+      console.log('=== END ACCESS TESTS ===');
+
       // Upload to SharePoint
       console.log('=== UPLOADING TO SHAREPOINT ===');
       //const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drives/${folderId}/root:/${fileName}:/content`;
