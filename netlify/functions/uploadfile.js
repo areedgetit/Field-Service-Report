@@ -22,7 +22,7 @@ exports.handler = async function (event, context) {
         body: JSON.stringify({ message: 'CORS preflight handled' })
       };
     }
-
+    //comment
     // Handle GET requests
     if (event.httpMethod === 'GET') {
       console.log('Handling GET request');
