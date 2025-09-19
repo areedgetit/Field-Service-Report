@@ -13,6 +13,7 @@ exports.handler = async function (event, context) {
   };
 
   try {
+    // Handle OPTIONS preflight
     if (event.httpMethod === 'OPTIONS') {
       console.log('Handling CORS preflight request');
       return {
@@ -22,6 +23,7 @@ exports.handler = async function (event, context) {
       };
     }
 
+    // Handle GET requests
     if (event.httpMethod === 'GET') {
       console.log('Handling GET request');
       return {
@@ -34,14 +36,16 @@ exports.handler = async function (event, context) {
       };
     }
 
+    // Handle POST requests - Full SharePoint upload
     if (event.httpMethod === 'POST') {
       console.log('=== HANDLING POST REQUEST ===');
-
+      
+      // Check environment variables
       const clientId = process.env.CLIENT_ID;
       const clientSecret = process.env.CLIENT_SECRET;
       const tenantId = process.env.TENANT_ID;
       const sharepointSiteUrl = process.env.SHAREPOINT_SITE_URL;
-      let folderId = process.env.SHAREPOINT_FOLDER_ID; // we may overwrite after fetching drives
+      const folderId = process.env.SHAREPOINT_FOLDER_ID;
 
       console.log('Environment check:');
       console.log('CLIENT_ID:', clientId ? 'SET' : 'MISSING');
@@ -50,45 +54,63 @@ exports.handler = async function (event, context) {
       console.log('SHAREPOINT_SITE_URL:', sharepointSiteUrl || 'MISSING');
       console.log('SHAREPOINT_FOLDER_ID:', folderId ? 'SET' : 'MISSING');
 
-      if (!clientId || !clientSecret || !tenantId || !sharepointSiteUrl) {
+      if (!clientId || !clientSecret || !tenantId || !sharepointSiteUrl || !folderId) {
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ error: 'Missing required environment variables' })
+          body: JSON.stringify({
+            error: 'Missing required environment variables'
+          })
         };
       }
 
+      // Get filename
       const fileName = event.queryStringParameters?.fileName || 'uploadedFile.pdf';
       console.log('Target filename:', fileName);
 
+      // Check if we have body data
       if (!event.body) {
         return {
           statusCode: 400,
           headers,
-          body: JSON.stringify({ error: 'No file data provided' })
+          body: JSON.stringify({
+            error: 'No file data provided'
+          })
         };
       }
 
+      // Process file content
       console.log('Processing file content...');
       let fileContent;
       try {
-        fileContent = Buffer.from(event.body, 'base64');
+        if (event.isBase64Encoded) {
+          fileContent = Buffer.from(event.body, 'base64');
+        } else {
+          // For binary data, Netlify often sends as base64 even when not marked
+          fileContent = Buffer.from(event.body, 'base64');
+        }
         console.log('File buffer created, length:', fileContent.length);
       } catch (error) {
         console.error('Error processing file:', error.message);
         return {
           statusCode: 400,
           headers,
-          body: JSON.stringify({ error: 'Failed to process file data', details: error.message })
+          body: JSON.stringify({
+            error: 'Failed to process file data',
+            details: error.message
+          })
         };
       }
 
+      // Get access token
       console.log('=== GETTING ACCESS TOKEN ===');
       const tokenResponse = await fetch(
         `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
           body: new URLSearchParams({
             client_id: clientId,
             client_secret: clientSecret,
@@ -106,35 +128,16 @@ exports.handler = async function (event, context) {
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ error: 'Authentication failed', details: tokenData })
+          body: JSON.stringify({
+            error: 'Authentication failed',
+            details: tokenData
+          })
         };
       }
 
       console.log('Access token obtained');
 
-      // ==== NEW: FETCH DRIVE ID ====
-      try {
-        console.log('Fetching drives for site...');
-        const drivesResponse = await fetch(
-          `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drives`,
-          { headers: { 'Authorization': `Bearer ${tokenData.access_token}` } }
-        );
-        const drivesData = await drivesResponse.json();
-        console.log('Drives fetch status:', drivesResponse.status);
-        console.log('Drives data:', JSON.stringify(drivesData, null, 2));
-
-        const documentsDrive = drivesData.value?.find(d => d.name === 'Documents');
-        if (documentsDrive) {
-          folderId = documentsDrive.id;
-          console.log('Documents drive ID:', folderId);
-        } else {
-          console.warn('Documents drive not found, using folderId from env:', folderId);
-        }
-      } catch (err) {
-        console.error('Error fetching drives:', err);
-      }
-      // ==== END FETCH DRIVE ID ====
-
+      // Upload to SharePoint
       console.log('=== UPLOADING TO SHAREPOINT ===');
       const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drives/${folderId}/root:/${fileName}:/content`;
       console.log('Upload URL:', uploadUrl);
@@ -150,16 +153,24 @@ exports.handler = async function (event, context) {
 
       console.log('Upload response status:', uploadResponse.status);
       const uploadText = await uploadResponse.text();
+
       let uploadResult;
-      try { uploadResult = JSON.parse(uploadText); } 
-      catch { uploadResult = { rawResponse: uploadText }; }
+      try {
+        uploadResult = JSON.parse(uploadText);
+      } catch {
+        uploadResult = { rawResponse: uploadText };
+      }
 
       if (!uploadResponse.ok) {
         console.error('Upload failed:', uploadResponse.status, uploadResult);
         return {
           statusCode: uploadResponse.status,
           headers,
-          body: JSON.stringify({ error: 'SharePoint upload failed', status: uploadResponse.status, details: uploadResult })
+          body: JSON.stringify({
+            error: 'SharePoint upload failed',
+            status: uploadResponse.status,
+            details: uploadResult
+          })
         };
       }
 
@@ -167,24 +178,36 @@ exports.handler = async function (event, context) {
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ message: 'File uploaded successfully', fileName, data: uploadResult })
+        body: JSON.stringify({
+          message: 'File uploaded successfully',
+          fileName: fileName,
+          data: uploadResult
+        })
       };
     }
 
+    // Handle other methods
     return {
       statusCode: 405,
       headers,
-      body: JSON.stringify({ error: 'Method not allowed', method: event.httpMethod })
+      body: JSON.stringify({ 
+        error: 'Method not allowed',
+        method: event.httpMethod 
+      })
     };
 
   } catch (error) {
     console.error('=== FUNCTION ERROR ===');
     console.error('Error:', error.message);
     console.error('Stack:', error.stack);
+    
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Unexpected server error', message: error.message })
+      body: JSON.stringify({
+        error: 'Unexpected server error',
+        message: error.message
+      })
     };
   }
 };
