@@ -137,8 +137,53 @@ exports.handler = async function (event, context) {
 
       console.log('Access token obtained');
 
-      // TEST SITE ACCESS FIRST
-      console.log('=== TESTING SITE ACCESS ===');
+      // TEST BASIC SITES ACCESS FIRST (simpler test)
+      console.log('=== TESTING BASIC SITES ACCESS ===');
+      try {
+        const testResponse = await fetch(
+          'https://graph.microsoft.com/v1.0/sites',
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${tokenData.access_token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        console.log('Basic sites access test status:', testResponse.status);
+        const testData = await testResponse.json();
+        console.log('Basic sites access test response:', JSON.stringify(testData, null, 2));
+        
+        if (testResponse.ok) {
+          console.log('✅ Basic sites access successful!');
+          console.log('Number of sites found:', testData.value ? testData.value.length : 'Unknown');
+        } else {
+          console.log('❌ Basic sites access failed:', testData);
+          return {
+            statusCode: testResponse.status,
+            headers,
+            body: JSON.stringify({
+              error: 'Basic sites access test failed - permissions not working',
+              status: testResponse.status,
+              details: testData
+            })
+          };
+        }
+      } catch (error) {
+        console.log('Basic sites access test error:', error.message);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({
+            error: 'Basic sites access test failed with exception',
+            details: error.message
+          })
+        };
+      }
+
+      // TEST SPECIFIC SITE ACCESS
+      console.log('=== TESTING SPECIFIC SITE ACCESS ===');
       try {
         const testResponse = await fetch(
           `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}`,
@@ -151,36 +196,21 @@ exports.handler = async function (event, context) {
           }
         );
         
-        console.log('Site access test status:', testResponse.status);
+        console.log('Specific site access test status:', testResponse.status);
         const testData = await testResponse.json();
-        console.log('Site access test response:', JSON.stringify(testData, null, 2));
+        console.log('Specific site access test response:', JSON.stringify(testData, null, 2));
         
         if (testResponse.ok) {
-          console.log('✅ Site access successful!');
+          console.log('✅ Specific site access successful!');
           console.log('Site name:', testData.displayName);
           console.log('Site ID:', testData.id);
         } else {
-          console.log('❌ Site access failed:', testData);
-          return {
-            statusCode: testResponse.status,
-            headers,
-            body: JSON.stringify({
-              error: 'Site access test failed - check permissions',
-              status: testResponse.status,
-              details: testData
-            })
-          };
+          console.log('❌ Specific site access failed:', testData);
+          // Don't return here - continue to drive test
         }
       } catch (error) {
-        console.log('Site access test error:', error.message);
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({
-            error: 'Site access test failed with exception',
-            details: error.message
-          })
-        };
+        console.log('Specific site access test error:', error.message);
+        // Don't return here - continue to drive test
       }
 
       // TEST DRIVE ACCESS
