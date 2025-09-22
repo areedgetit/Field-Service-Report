@@ -137,6 +137,37 @@ exports.handler = async function (event, context) {
 
       console.log('Access token obtained');
 
+      // TOKEN INSPECTION - Check what permissions are actually in the token
+      console.log('=== TOKEN INSPECTION ===');
+      try {
+        // Decode the token payload (it's base64 encoded JWT)
+        const tokenParts = tokenData.access_token.split('.');
+        if (tokenParts.length >= 2) {
+          const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
+          console.log('Token app ID:', payload.appid || payload.azp || 'Not found');
+          console.log('Token audience:', payload.aud || 'Not found');
+          console.log('Token roles/permissions:', payload.roles || 'No roles found');
+          console.log('Token scopes:', payload.scp || 'No scopes found');
+          console.log('Token issuer:', payload.iss || 'Not found');
+          console.log('Token expires:', new Date((payload.exp || 0) * 1000).toISOString());
+          
+          // Check if Sites permissions are present
+          if (payload.roles && payload.roles.includes('Sites.ReadWrite.All')) {
+            console.log('✅ Sites.ReadWrite.All permission found in token!');
+          } else if (payload.roles && payload.roles.includes('Sites.Read.All')) {
+            console.log('⚠️  Only Sites.Read.All found - need Sites.ReadWrite.All');
+          } else {
+            console.log('❌ NO Sites permissions found in token!');
+            console.log('Available roles:', payload.roles);
+          }
+        } else {
+          console.log('❌ Could not parse token structure');
+        }
+      } catch (e) {
+        console.log('❌ Could not decode token:', e.message);
+      }
+      console.log('=== END TOKEN INSPECTION ===');
+
       // TEST BASIC SITES ACCESS FIRST (simpler test)
       console.log('=== TESTING BASIC SITES ACCESS ===');
       try {
