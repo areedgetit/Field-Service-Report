@@ -115,7 +115,7 @@ exports.handler = async function (event, context) {
             client_id: clientId,
             client_secret: clientSecret,
             grant_type: 'client_credentials',
-            scope: 'https://graph.microsoft.com/Sites.ReadWrite.All',
+            scope: 'https://graph.microsoft.com/.default',
           }),
         }
       );
