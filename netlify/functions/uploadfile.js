@@ -168,7 +168,34 @@ exports.handler = async function (event, context) {
       }
       console.log('=== END TOKEN INSPECTION ===');
 
-      // TEST BASIC SITES ACCESS FIRST (simpler test)
+      // TEST 1: SUPER BASIC - Try to get service root (requires minimal permissions)
+      console.log('=== TESTING SERVICE ROOT ACCESS ===');
+      try {
+        const serviceRootResponse = await fetch(
+          'https://graph.microsoft.com/v1.0/',
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${tokenData.access_token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        console.log('Service root test status:', serviceRootResponse.status);
+        const serviceRootData = await serviceRootResponse.json();
+        console.log('Service root response:', JSON.stringify(serviceRootData, null, 2));
+        
+        if (serviceRootResponse.ok) {
+          console.log('✅ Service root access successful!');
+        } else {
+          console.log('❌ Service root access failed:', serviceRootData);
+        }
+      } catch (error) {
+        console.log('Service root test error:', error.message);
+      }
+
+      // TEST 2: Try to list sites (requires Sites permissions)
       console.log('=== TESTING BASIC SITES ACCESS ===');
       try {
         const testResponse = await fetch(
@@ -191,26 +218,39 @@ exports.handler = async function (event, context) {
           console.log('Number of sites found:', testData.value ? testData.value.length : 'Unknown');
         } else {
           console.log('❌ Basic sites access failed:', testData);
-          return {
-            statusCode: testResponse.status,
-            headers,
-            body: JSON.stringify({
-              error: 'Basic sites access test failed - permissions not working',
-              status: testResponse.status,
-              details: testData
-            })
-          };
+          // Don't return error - continue with other tests
         }
       } catch (error) {
         console.log('Basic sites access test error:', error.message);
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({
-            error: 'Basic sites access test failed with exception',
-            details: error.message
-          })
-        };
+        // Don't return error - continue with other tests
+      }
+
+      // TEST 3: Try to get site by host name (alternative method)
+      console.log('=== TESTING SITE BY HOSTNAME ===');
+      try {
+        const hostnameResponse = await fetch(
+          'https://graph.microsoft.com/v1.0/sites/steelhead365.sharepoint.com',
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${tokenData.access_token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        console.log('Site by hostname test status:', hostnameResponse.status);
+        const hostnameData = await hostnameResponse.json();
+        console.log('Site by hostname response:', JSON.stringify(hostnameData, null, 2));
+        
+        if (hostnameResponse.ok) {
+          console.log('✅ Site by hostname successful!');
+          console.log('Root site name:', hostnameData.displayName);
+        } else {
+          console.log('❌ Site by hostname failed:', hostnameData);
+        }
+      } catch (error) {
+        console.log('Site by hostname test error:', error.message);
       }
 
       // TEST SPECIFIC SITE ACCESS
