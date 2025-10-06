@@ -1,0 +1,493 @@
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   === FUNCTION START ===
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   HTTP Method: POST
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   Content-Type: application/pdf
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   Body length: 349056
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   Is base64 encoded: true
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   === HANDLING POST REQUEST ===
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   Environment check:
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   CLIENT_ID: SET
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   CLIENT_SECRET: SET
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   TENANT_ID: SET
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   SHAREPOINT_SITE_URL: steelhead365.sharepoint.com,/sites/Encore
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   SHAREPOINT_FOLDER_ID: SET
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   Target filename: TG-213123--2025-09-23.pdf
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   Processing file content...
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   File buffer created, length: 261791
+Sep 24, 12:58:18 PM: 4fc13f9d INFO   === GETTING ACCESS TOKEN ===
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Token request status: 200
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Access token obtained
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   === TOKEN INSPECTION ===
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Token app ID: 51d66937-3d4d-464b-b4a3-3209584f1d75
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Token audience: https://graph.microsoft.com
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Token roles/permissions: No roles found
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Token scopes: No scopes found
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Token issuer: https://sts.windows.net/03564a0c-2916-4226-b171-2cd311d19d44/
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Token expires: 2025-09-24T19:58:18.000Z
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   ❌ NO Sites permissions found in token!
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Available roles: undefined
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   === END TOKEN INSPECTION ===
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   === TESTING SERVICE ROOT ACCESS ===
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Service root test status: 200
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Service root response: {
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata",
+  "value": [
+    {
+      "name": "directoryObjects",
+      "kind": "EntitySet",
+      "url": "directoryObjects"
+    },
+    {
+      "name": "invitations",
+      "kind": "EntitySet",
+      "url": "invitations"
+    },
+    {
+      "name": "users",
+      "kind": "EntitySet",
+      "url": "users"
+    },
+    {
+      "name": "applicationTemplates",
+      "kind": "EntitySet",
+      "url": "applicationTemplates"
+    },
+    {
+      "name": "authenticationMethodConfigurations",
+      "kind": "EntitySet",
+      "url": "authenticationMethodConfigurations"
+    },
+    {
+      "name": "identityProviders",
+      "kind": "EntitySet",
+      "url": "identityProviders"
+    },
+    {
+      "name": "applications",
+      "kind": "EntitySet",
+      "url": "applications"
+    },
+    {
+      "name": "appRoleAssignments",
+      "kind": "EntitySet",
+      "url": "appRoleAssignments"
+    },
+    {
+      "name": "certificateBasedAuthConfiguration",
+      "kind": "EntitySet",
+      "url": "certificateBasedAuthConfiguration"
+    },
+    {
+      "name": "contacts",
+      "kind": "EntitySet",
+      "url": "contacts"
+    },
+    {
+      "name": "contracts",
+      "kind": "EntitySet",
+      "url": "contracts"
+    },
+    {
+      "name": "devices",
+      "kind": "EntitySet",
+      "url": "devices"
+    },
+    {
+      "name": "directoryRoles",
+      "kind": "EntitySet",
+      "url": "directoryRoles"
+    },
+    {
+      "name": "directoryRoleTemplates",
+      "kind": "EntitySet",
+      "url": "directoryRoleTemplates"
+    },
+    {
+      "name": "domainDnsRecords",
+      "kind": "EntitySet",
+      "url": "domainDnsRecords"
+    },
+    {
+      "name": "domains",
+      "kind": "EntitySet",
+      "url": "domains"
+    },
+    {
+      "name": "groups",
+      "kind": "EntitySet",
+      "url": "groups"
+    },
+    {
+      "name": "groupSettings",
+      "kind": "EntitySet",
+      "url": "groupSettings"
+    },
+    {
+      "name": "groupSettingTemplates",
+      "kind": "EntitySet",
+      "url": "groupSettingTemplates"
+    },
+    {
+      "name": "oauth2PermissionGrants",
+      "kind": "EntitySet",
+      "url": "oauth2PermissionGrants"
+    },
+    {
+      "name": "organization",
+      "kind": "EntitySet",
+      "url": "organization"
+    },
+    {
+      "name": "permissionGrants",
+      "kind": "EntitySet",
+      "url": "permissionGrants"
+    },
+    {
+      "name": "scopedRoleMemberships",
+      "kind": "EntitySet",
+      "url": "scopedRoleMemberships"
+    },
+    {
+      "name": "servicePrincipals",
+      "kind": "EntitySet",
+      "url": "servicePrincipals"
+    },
+    {
+      "name": "subscribedSkus",
+      "kind": "EntitySet",
+      "url": "subscribedSkus"
+    },
+    {
+      "name": "places",
+      "kind": "EntitySet",
+      "url": "places"
+    },
+    {
+      "name": "drives",
+      "kind": "EntitySet",
+      "url": "drives"
+    },
+    {
+      "name": "shares",
+      "kind": "EntitySet",
+      "url": "shares"
+    },
+    {
+      "name": "sites",
+      "kind": "EntitySet",
+      "url": "sites"
+    },
+    {
+      "name": "schemaExtensions",
+      "kind": "EntitySet",
+      "url": "schemaExtensions"
+    },
+    {
+      "name": "groupLifecyclePolicies",
+      "kind": "EntitySet",
+      "url": "groupLifecyclePolicies"
+    },
+    {
+      "name": "filterOperators",
+      "kind": "EntitySet",
+      "url": "filterOperators"
+    },
+    {
+      "name": "functions",
+      "kind": "EntitySet",
+      "url": "functions"
+    },
+    {
+      "name": "agreementAcceptances",
+      "kind": "EntitySet",
+      "url": "agreementAcceptances"
+    },
+    {
+      "name": "agreements",
+      "kind": "EntitySet",
+      "url": "agreements"
+    },
+    {
+      "name": "dataPolicyOperations",
+      "kind": "EntitySet",
+      "url": "dataPolicyOperations"
+    },
+    {
+      "name": "subscriptions",
+      "kind": "EntitySet",
+      "url": "subscriptions"
+    },
+    {
+      "name": "connections",
+      "kind": "EntitySet",
+      "url": "connections"
+    },
+    {
+      "name": "chats",
+      "kind": "EntitySet",
+      "url": "chats"
+    },
+    {
+      "name": "teams",
+      "kind": "EntitySet",
+      "url": "teams"
+    },
+    {
+      "name": "teamsTemplates",
+      "kind": "EntitySet",
+      "url": "teamsTemplates"
+    },
+    {
+      "name": "identityGovernance",
+      "kind": "Singleton",
+      "url": "identityGovernance"
+    },
+    {
+      "name": "auditLogs",
+      "kind": "Singleton",
+      "url": "auditLogs"
+    },
+    {
+      "name": "reports",
+      "kind": "Singleton",
+      "url": "reports"
+    },
+    {
+      "name": "authenticationMethodsPolicy",
+      "kind": "Singleton",
+      "url": "authenticationMethodsPolicy"
+    },
+    {
+      "name": "solutions",
+      "kind": "Singleton",
+      "url": "solutions"
+    },
+    {
+      "name": "deviceManagement",
+      "kind": "Singleton",
+      "url": "deviceManagement"
+    },
+    {
+      "name": "privacy",
+      "kind": "Singleton",
+      "url": "privacy"
+    },
+    {
+      "name": "security",
+      "kind": "Singleton",
+      "url": "security"
+    },
+    {
+      "name": "compliance",
+      "kind": "Singleton",
+      "url": "compliance"
+    },
+    {
+      "name": "copilot",
+      "kind": "Singleton",
+      "url": "copilot"
+    },
+    {
+      "name": "identity",
+      "kind": "Singleton",
+      "url": "identity"
+    },
+    {
+      "name": "directory",
+      "kind": "Singleton",
+      "url": "directory"
+    },
+    {
+      "name": "me",
+      "kind": "Singleton",
+      "url": "me"
+    },
+    {
+      "name": "policies",
+      "kind": "Singleton",
+      "url": "policies"
+    },
+    {
+      "name": "tenantRelationships",
+      "kind": "Singleton",
+      "url": "tenantRelationships"
+    },
+    {
+      "name": "admin",
+      "kind": "Singleton",
+      "url": "admin"
+    },
+    {
+      "name": "education",
+      "kind": "Singleton",
+      "url": "education"
+    },
+    {
+      "name": "roleManagement",
+      "kind": "Singleton",
+      "url": "roleManagement"
+    },
+    {
+      "name": "drive",
+      "kind": "Singleton",
+      "url": "drive"
+    },
+    {
+      "name": "storage",
+      "kind": "Singleton",
+      "url": "storage"
+    },
+    {
+      "name": "communications",
+      "kind": "Singleton",
+      "url": "communications"
+    },
+    {
+      "name": "identityProtection",
+      "kind": "Singleton",
+      "url": "identityProtection"
+    },
+    {
+      "name": "deviceAppManagement",
+      "kind": "Singleton",
+      "url": "deviceAppManagement"
+    },
+    {
+      "name": "search",
+      "kind": "Singleton",
+      "url": "search"
+    },
+    {
+      "name": "planner",
+      "kind": "Singleton",
+      "url": "planner"
+    },
+    {
+      "name": "print",
+      "kind": "Singleton",
+      "url": "print"
+    },
+    {
+      "name": "external",
+      "kind": "Singleton",
+      "url": "external"
+    },
+    {
+      "name": "appCatalogs",
+      "kind": "Singleton",
+      "url": "appCatalogs"
+    },
+    {
+      "name": "teamwork",
+      "kind": "Singleton",
+      "url": "teamwork"
+    },
+    {
+      "name": "informationProtection",
+      "kind": "Singleton",
+      "url": "informationProtection"
+    },
+    {
+      "name": "employeeExperience",
+      "kind": "Singleton",
+      "url": "employeeExperience"
+    }
+  ]
+}
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   ✅ Service root access successful!
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   === TESTING BASIC SITES ACCESS ===
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Basic sites access test status: 401
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Basic sites access test response: {
+  "error": {
+    "code": "generalException",
+    "message": "General exception while processing",
+    "innerError": {
+      "date": "2025-09-24T18:58:19",
+      "request-id": "ed3f038c-6bfb-41ec-947d-db87d7adc18e",
+      "client-request-id": "ed3f038c-6bfb-41ec-947d-db87d7adc18e"
+    }
+  }
+}
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   ❌ Basic sites access failed: {
+  error: {
+    code: 'generalException',
+    message: 'General exception while processing',
+    innerError: {
+      date: '2025-09-24T18:58:19',
+      'request-id': 'ed3f038c-6bfb-41ec-947d-db87d7adc18e',
+      'client-request-id': 'ed3f038c-6bfb-41ec-947d-db87d7adc18e'
+    }
+  }
+}
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   === TESTING SITE BY HOSTNAME ===
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Site by hostname test status: 401
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Site by hostname response: {
+  "error": {
+    "code": "generalException",
+    "message": "General exception while processing",
+    "innerError": {
+      "date": "2025-09-24T18:58:19",
+      "request-id": "49a05e5d-1703-4c6c-be90-943a09306d43",
+      "client-request-id": "49a05e5d-1703-4c6c-be90-943a09306d43"
+    }
+  }
+}
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   ❌ Site by hostname failed: {
+  error: {
+    code: 'generalException',
+    message: 'General exception while processing',
+    innerError: {
+      date: '2025-09-24T18:58:19',
+      'request-id': '49a05e5d-1703-4c6c-be90-943a09306d43',
+      'client-request-id': '49a05e5d-1703-4c6c-be90-943a09306d43'
+    }
+  }
+}
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   === TESTING SPECIFIC SITE ACCESS ===
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Specific site access test status: 401
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Specific site access test response: {
+  "error": {
+    "code": "generalException",
+    "message": "General exception while processing",
+    "innerError": {
+      "date": "2025-09-24T18:58:19",
+      "request-id": "375d2b98-71cc-4e39-8442-af82a50a1f7c",
+      "client-request-id": "375d2b98-71cc-4e39-8442-af82a50a1f7c"
+    }
+  }
+}
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   ❌ Specific site access failed: {
+  error: {
+    code: 'generalException',
+    message: 'General exception while processing',
+    innerError: {
+      date: '2025-09-24T18:58:19',
+      'request-id': '375d2b98-71cc-4e39-8442-af82a50a1f7c',
+      'client-request-id': '375d2b98-71cc-4e39-8442-af82a50a1f7c'
+    }
+  }
+}
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   === TESTING DRIVE ACCESS ===
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Drive access test status: 401
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   Drive access test response: {
+  "error": {
+    "code": "generalException",
+    "message": "General exception while processing",
+    "innerError": {
+      "date": "2025-09-24T18:58:19",
+      "request-id": "521cf8b8-74b7-487a-afee-fd8a731c04fa",
+      "client-request-id": "521cf8b8-74b7-487a-afee-fd8a731c04fa"
+    }
+  }
+}
+Sep 24, 12:58:19 PM: 4fc13f9d INFO   ❌ Drive access failed: {
+  error: {
+    code: 'generalException',
+    message: 'General exception while processing',
+    innerError: {
+      date: '2025-09-24T18:58:19',
+      'request-id': '521cf8b8-74b7-487a-afee-fd8a731c04fa',
+      'client-request-id': '521cf8b8-74b7-487a-afee-fd8a731c04fa'
+    }
+  }
+}
+Sep 24, 12:58:19 PM: 4fc13f9d Duration: 887.67 ms	Memory Usage: 125 MB
