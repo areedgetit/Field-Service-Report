@@ -170,7 +170,7 @@ exports.handler = async function (event, context) {
       console.log('Using Drive ID:', driveId);
       
       // Use drive ID directly for upload (more reliable than path)
-      const uploadUrl = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/Documents/${fileName}:/content`;
+      const uploadUrl = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/Mechanical/${fileName}:/content`;
       console.log('Upload URL:', uploadUrl);
 
       const uploadResponse = await fetch(uploadUrl, {
