@@ -54,7 +54,7 @@ exports.handler = async function (event, context) {
       console.log('SHAREPOINT_SITE_URL:', sharepointSiteUrl || 'MISSING');
       console.log('SHAREPOINT_FOLDER_ID:', folderId ? 'SET' : 'MISSING');
 
-      if (!clientId || !clientSecret || !tenantId || !sharepointSiteUrl || !folderId) {
+      if (!clientId || !clientSecret || !tenantId || !sharepointSiteUrl) {
         return {
           statusCode: 500,
           headers,
@@ -137,205 +137,40 @@ exports.handler = async function (event, context) {
 
       console.log('Access token obtained');
 
-      // TOKEN INSPECTION - Check what permissions are actually in the token
-      console.log('=== TOKEN INSPECTION ===');
-      try {
-        // Decode the token payload (it's base64 encoded JWT)
-        const tokenParts = tokenData.access_token.split('.');
-        if (tokenParts.length >= 2) {
-          const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
-          console.log('Token app ID:', payload.appid || payload.azp || 'Not found');
-          console.log('Token audience:', payload.aud || 'Not found');
-          console.log('Token roles/permissions:', payload.roles || 'No roles found');
-          console.log('Token scopes:', payload.scp || 'No scopes found');
-          console.log('Token issuer:', payload.iss || 'Not found');
-          console.log('Token expires:', new Date((payload.exp || 0) * 1000).toISOString());
-          
-          // Check if Sites permissions are present
-          if (payload.roles && payload.roles.includes('Sites.ReadWrite.All')) {
-            console.log('✅ Sites.ReadWrite.All permission found in token!');
-          } else if (payload.roles && payload.roles.includes('Sites.Read.All')) {
-            console.log('⚠️  Only Sites.Read.All found - need Sites.ReadWrite.All');
-          } else {
-            console.log('❌ NO Sites permissions found in token!');
-            console.log('Available roles:', payload.roles);
+      // Upload to SharePoint
+      console.log('=== UPLOADING TO SHAREPOINT ===');
+      
+      // Get the drive first to use its direct ID
+      const driveResponse = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drive`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${tokenData.access_token}`,
+            'Content-Type': 'application/json'
           }
-        } else {
-          console.log('❌ Could not parse token structure');
         }
-      } catch (e) {
-        console.log('❌ Could not decode token:', e.message);
-      }
-      console.log('=== END TOKEN INSPECTION ===');
-
-      // TEST 1: SUPER BASIC - Try to get service root (requires minimal permissions)
-      console.log('=== TESTING SERVICE ROOT ACCESS ===');
-      try {
-        const serviceRootResponse = await fetch(
-          'https://graph.microsoft.com/v1.0/',
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${tokenData.access_token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
-        console.log('Service root test status:', serviceRootResponse.status);
-        const serviceRootData = await serviceRootResponse.json();
-        console.log('Service root response:', JSON.stringify(serviceRootData, null, 2));
-        
-        if (serviceRootResponse.ok) {
-          console.log('✅ Service root access successful!');
-        } else {
-          console.log('❌ Service root access failed:', serviceRootData);
-        }
-      } catch (error) {
-        console.log('Service root test error:', error.message);
-      }
-
-      // TEST 2: Try to list sites (requires Sites permissions)
-      console.log('=== TESTING BASIC SITES ACCESS ===');
-      try {
-        const testResponse = await fetch(
-          'https://graph.microsoft.com/v1.0/sites',
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${tokenData.access_token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
-        console.log('Basic sites access test status:', testResponse.status);
-        const testData = await testResponse.json();
-        console.log('Basic sites access test response:', JSON.stringify(testData, null, 2));
-        
-        if (testResponse.ok) {
-          console.log('✅ Basic sites access successful!');
-          console.log('Number of sites found:', testData.value ? testData.value.length : 'Unknown');
-        } else {
-          console.log('❌ Basic sites access failed:', testData);
-          // Don't return error - continue with other tests
-        }
-      } catch (error) {
-        console.log('Basic sites access test error:', error.message);
-        // Don't return error - continue with other tests
-      }
-
-      // TEST 3: Try to get site by host name (alternative method)
-      console.log('=== TESTING SITE BY HOSTNAME ===');
-      try {
-        const hostnameResponse = await fetch(
-          'https://graph.microsoft.com/v1.0/sites/steelhead365.sharepoint.com',
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${tokenData.access_token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
-        console.log('Site by hostname test status:', hostnameResponse.status);
-        const hostnameData = await hostnameResponse.json();
-        console.log('Site by hostname response:', JSON.stringify(hostnameData, null, 2));
-        
-        if (hostnameResponse.ok) {
-          console.log('✅ Site by hostname successful!');
-          console.log('Root site name:', hostnameData.displayName);
-        } else {
-          console.log('❌ Site by hostname failed:', hostnameData);
-        }
-      } catch (error) {
-        console.log('Site by hostname test error:', error.message);
-      }
-
-      // TEST SPECIFIC SITE ACCESS
-      console.log('=== TESTING SPECIFIC SITE ACCESS ===');
-      try {
-        const testResponse = await fetch(
-          `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}`,
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${tokenData.access_token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
-        console.log('Specific site access test status:', testResponse.status);
-        const testData = await testResponse.json();
-        console.log('Specific site access test response:', JSON.stringify(testData, null, 2));
-        
-        if (testResponse.ok) {
-          console.log('✅ Specific site access successful!');
-          console.log('Site name:', testData.displayName);
-          console.log('Site ID:', testData.id);
-        } else {
-          console.log('❌ Specific site access failed:', testData);
-          // Don't return here - continue to drive test
-        }
-      } catch (error) {
-        console.log('Specific site access test error:', error.message);
-        // Don't return here - continue to drive test
-      }
-
-      // TEST DRIVE ACCESS
-      console.log('=== TESTING DRIVE ACCESS ===');
-      try {
-        const driveResponse = await fetch(
-          `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drive`,
-          {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${tokenData.access_token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        
-        console.log('Drive access test status:', driveResponse.status);
-        const driveData = await driveResponse.json();
-        console.log('Drive access test response:', JSON.stringify(driveData, null, 2));
-        
-        if (driveResponse.ok) {
-          console.log('✅ Drive access successful!');
-          console.log('Drive name:', driveData.name);
-          console.log('Drive ID:', driveData.id);
-        } else {
-          console.log('❌ Drive access failed:', driveData);
-          return {
-            statusCode: driveResponse.status,
-            headers,
-            body: JSON.stringify({
-              error: 'Drive access test failed - check permissions',
-              status: driveResponse.status,
-              details: driveData
-            })
-          };
-        }
-      } catch (error) {
-        console.log('Drive access test error:', error.message);
+      );
+      
+      if (!driveResponse.ok) {
+        const driveError = await driveResponse.json();
+        console.error('Failed to get drive:', driveError);
         return {
-          statusCode: 500,
+          statusCode: driveResponse.status,
           headers,
           body: JSON.stringify({
-            error: 'Drive access test failed with exception',
-            details: error.message
+            error: 'Failed to access SharePoint drive',
+            details: driveError
           })
         };
       }
-
-      console.log('=== END ACCESS TESTS ===');
-
-      // Upload to SharePoint
-      console.log('=== UPLOADING TO SHAREPOINT ===');
-      //const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drives/${folderId}/root:/${fileName}:/content`;
-      const uploadUrl = `https://graph.microsoft.com/v1.0/sites/${sharepointSiteUrl}/drive/items/root:/Documents/${fileName}:/content`;
+      
+      const driveData = await driveResponse.json();
+      const driveId = driveData.id;
+      console.log('Using Drive ID:', driveId);
+      
+      // Use drive ID directly for upload (more reliable than path)
+      const uploadUrl = `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/Documents/${fileName}:/content`;
       console.log('Upload URL:', uploadUrl);
 
       const uploadResponse = await fetch(uploadUrl, {
@@ -377,6 +212,8 @@ exports.handler = async function (event, context) {
         body: JSON.stringify({
           message: 'File uploaded successfully',
           fileName: fileName,
+          fileSize: fileContent.length,
+          webUrl: uploadResult.webUrl || 'Not available',
           data: uploadResult
         })
       };
