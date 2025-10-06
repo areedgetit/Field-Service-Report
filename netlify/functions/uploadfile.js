@@ -342,7 +342,7 @@ exports.handler = async function (event, context) {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${tokenData.access_token}`,
-          'Content-Type': 'application/pdf',
+          'Content-Type': 'application/octet-stream',
         },
         body: fileContent,
       });
