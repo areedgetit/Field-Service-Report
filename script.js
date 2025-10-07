@@ -2,10 +2,51 @@ document.addEventListener('DOMContentLoaded', function() {
   const dwnBtn = document.getElementById('dwnBtn');
   const sbmt = document.getElementById('sbmt');
   const inputDivs = document.querySelectorAll('.input-div');
-  //const machine = document.querySelector('input[name="machineType"]:checked');
   const number = document.getElementById('Machine-Number');
   const date = document.getElementById('date');
-  const gang = document.getElementById('gang-number'); 
+  const gang = document.getElementById('gang-number');
+  
+  // Function to validate required fields
+  function validateForm() {
+    const errors = [];
+    
+    // Check if machine type is selected
+    const machine = document.querySelector('input[name="machineType"]:checked');
+    if (!machine) {
+      errors.push('Machine Type');
+    }
+    
+    // Check machine number
+    if (!number.value.trim()) {
+      errors.push('Machine Number');
+    }
+    
+    // Check date
+    if (!date.value) {
+      errors.push('Date');
+    }
+    
+    // Check gang number
+    if (!gang.value.trim()) {
+      errors.push('Gang Number');
+    }
+    
+    return errors;
+  }
+  
+  // Function to show validation errors
+  function showValidationErrors(errors) {
+    if (errors.length === 0) return true;
+    
+    let errorMessage = 'Please fill out the following required fields:\n\n';
+    errors.forEach(field => {
+      errorMessage += `• ${field}\n`;
+    });
+    
+    alert(errorMessage);
+    return false;
+  }
+  
   // Function to add custom CSS styles
   function addCustomStyles() {
     const style = document.createElement('style');
@@ -17,8 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 5px !important;
         border: 1px solid #ccc !important;
         box-sizing: border-box !important;
-        overflow: hidden; /* Prevent scrollbars */
-        resize: none; /* Disable manual resizing */
+        overflow: hidden;
+        resize: none;
       }
       .input-div {
         border: 1px solid #ccc;
@@ -29,8 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
         word-wrap: break-word;
         overflow-wrap: break-word;
         line-height: 1.5;
-        max-height: 300px; /* Optional: set a maximum height */
-        overflow-y: auto; /* Add scrollbar if content exceeds max-height */
+        max-height: 300px;
+        overflow-y: auto;
         overflow: hidden;
         padding-bottom: 40px;
       }
@@ -41,8 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
         margin-bottom: 5px !important;
         border: 1px solid #ccc !important;
         box-sizing: border-box !important;
-        overflow: hidden; /* Prevent scrollbars */
-        resize: none; /* Disable manual resizing */  
+        overflow: hidden;
+        resize: none;
       }  
       #main-info label > input[type="checkbox"] {
         margin-left: 5px; 
@@ -61,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Loop through each inputDiv and add event listeners
   inputDivs.forEach(inputDiv => {
     inputDiv.addEventListener('input', function() {
-      adjustHeight(inputDiv); // Pass the current inputDiv
+      adjustHeight(inputDiv);
     });
 
     inputDiv.addEventListener('click', function(e) {
@@ -75,7 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
       this.focus();
     });
 
-    // Initial call to set the correct height
     adjustHeight(inputDiv);
   });
 
@@ -90,304 +130,176 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Initialize auto-resizing on textareas
   autoResizeTextareas();
 
+  // Function to generate PDF (shared between download and submit)
+  function generatePDF(callback) {
+    // Validate form first
+    const validationErrors = validateForm();
+    if (!showValidationErrors(validationErrors)) {
+      return; // Stop if validation fails
+    }
+    
+    const machine = document.querySelector('input[name="machineType"]:checked');
+    addCustomStyles();
+
+    const form = document.querySelector('form');
+
+    form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => {
+      el.classList.add('pdf-input');
+    });
+
+    const formHeight = form.scrollHeight;
+    const formWidth = form.offsetWidth;
+
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.top = '0';
+    tempContainer.style.left = '0';
+    tempContainer.style.width = formWidth + 'px';
+    tempContainer.style.height = formHeight + 'px';
+    tempContainer.style.overflow = 'hidden';
+    tempContainer.style.pointerEvents = 'none';
+
+    const clonedForm = form.cloneNode(true);
+    tempContainer.appendChild(clonedForm);
+    document.body.appendChild(tempContainer);
+
+    setTimeout(() => {
+      const aspectRatio = formHeight / formWidth;
+
+      html2canvas(tempContainer, {
+        scale: 1,
+        useCORS: true,
+        allowTaint: true,
+        height: formHeight,
+        windowHeight: formHeight,
+        quality: 0.8,
+        backgroundColor: '#ffffff',
+        onclone: function(clonedDoc) {
+          clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
+            if (el.getAttribute('contenteditable') === 'true') {
+              el.style.color = 'black';
+              el.style.fontSize = '14px';
+              el.textContent = el.textContent;
+            } else if (el.value) {
+              el.style.color = 'black';
+              el.style.fontSize = '14px';
+            }
+          });
+        }
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/jpeg', 0.7);
+        
+        const maxPdfWidth = 210;
+        const maxPdfHeight = 297;
+        
+        let pdfWidth, pdfHeight;
+        if (aspectRatio > 1) {
+          pdfHeight = maxPdfHeight;
+          pdfWidth = maxPdfHeight / aspectRatio;
+        } else {
+          pdfWidth = maxPdfWidth;
+          pdfHeight = maxPdfWidth * aspectRatio;
+        }
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+          unit: 'mm',
+          format: [pdfWidth, pdfHeight],
+          compress: true
+        });
+
+        doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM');
+        const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`;
+
+        // Cleanup
+        document.body.removeChild(tempContainer);
+        form.querySelectorAll('.pdf-input').forEach(el => {
+          el.classList.remove('pdf-input');
+        });
+
+        // Call the callback with doc and fileName
+        callback(doc, fileName);
+        
+      }).catch(error => {
+        console.error('Error in html2canvas operation:', error);
+        alert('An error occurred while generating the PDF. Please try again or contact support if the problem persists.');
+        
+        document.body.removeChild(tempContainer);
+        form.querySelectorAll('.pdf-input').forEach(el => {
+          el.classList.remove('pdf-input');
+        });
+      });
+    }, 100);
+  }
+
+  // Download button handler
   dwnBtn.addEventListener('click', function(event) {
     event.preventDefault();
-    const machine = document.querySelector('input[name="machineType"]:checked');
-    // Add custom CSS styles when the submit button is clicked
-    addCustomStyles();
-
-    const form = document.querySelector('form');
-
-    // Apply custom class to all input, select, textarea, and contenteditable elements
-    form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => {
-      el.classList.add('pdf-input');
+    
+    generatePDF((doc, fileName) => {
+      doc.save(fileName);
+      alert('PDF downloaded successfully!');
     });
-
-    // Get the full height of the form
-    const formHeight = form.scrollHeight;
-    const formWidth = form.offsetWidth;
-
-    // Create a temporary container
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.top = '0';
-    tempContainer.style.left = '0';
-    tempContainer.style.width = formWidth + 'px';
-    tempContainer.style.height = formHeight + 'px';
-    tempContainer.style.overflow = 'hidden';
-    tempContainer.style.pointerEvents = 'none';
-
-    // Clone the form and append it to the temporary container
-    const clonedForm = form.cloneNode(true);
-    tempContainer.appendChild(clonedForm);
-    document.body.appendChild(tempContainer);
-
-    // Delay to ensure everything is rendered properly
-    setTimeout(() => {
-      // Calculate aspect ratio
-      const aspectRatio = formHeight / formWidth;
-
-      // Set up PDF dimensions
-      const { jsPDF } = window.jspdf;
-      const pdfWidth = 210; // A4 width in mm
-      const pdfHeight = pdfWidth * aspectRatio;
-      const doc = new jsPDF({
-        orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
-        unit: 'mm',
-        format: [pdfWidth, pdfHeight]
-      });
-
-      html2canvas(tempContainer, {
-        scale: 1, // Reduced from 2 - this will cut size by ~75%
-        useCORS: true,
-        allowTaint: true,
-        height: formHeight,
-        windowHeight: formHeight,
-        quality: 0.8, // Add quality setting to reduce file size
-        backgroundColor: '#ffffff', // Ensure white background
-        onclone: function(clonedDoc) {
-                  
-          // Ensure text is visible in cloned inputs and contenteditable divs
-          clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
-            if (el.getAttribute('contenteditable') === 'true') {
-              el.style.color = 'black';
-              el.style.fontSize = '14px'; // Slightly smaller font
-              // Ensure the content of the div is preserved
-              el.textContent = el.textContent;
-            } else if (el.value) {
-              el.style.color = 'black';
-              el.style.fontSize = '14px'; // Slightly smaller font
-            }
-          });
-        }
-      }).then(canvas => {
-        const imgData = canvas.toDataURL('image/jpeg', 0.7); // Use JPEG with 70% quality instead of PNG
-        
-        // Adjust PDF dimensions to be more reasonable
-        const maxPdfWidth = 210; // A4 width
-        const maxPdfHeight = 297; // A4 height
-        
-        let pdfWidth, pdfHeight;
-        if (aspectRatio > 1) {
-          // Tall document
-          pdfHeight = maxPdfHeight;
-          pdfWidth = maxPdfHeight / aspectRatio;
-        } else {
-          // Wide document  
-          pdfWidth = maxPdfWidth;
-          pdfHeight = maxPdfWidth * aspectRatio;
-        }
-        
-        const doc = new jsPDF({
-          orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
-          unit: 'mm',
-          format: [pdfWidth, pdfHeight],
-          compress: true // Enable PDF compression
-        });
-
-        doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM'); // Use MEDIUM compression
-        const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`
-        doc.save(fileName);
-
-        // Remove the temporary container
-        document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
-      }).catch(error => {
-        console.error('Error in html2canvas operation:', error);
-        alert('An error occurred while generating the PDF. Please check the console for more details.');
-        
-        // Remove the temporary container in case of error
-        document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
-      });
-    }, 100); // Adjust the delay if necessary
   });
   
+  // Submit button handler
   sbmt.addEventListener('click', function(event) {
     event.preventDefault();
-    const machine = document.querySelector('input[name="machineType"]:checked');
-    // Add custom CSS styles when the submit button is clicked
-    addCustomStyles();
+    
+    generatePDF((doc, fileName) => {
+      const pdfBlob = doc.output('blob');
 
-    const form = document.querySelector('form');
-
-    // Apply custom class to all input, select, textarea, and contenteditable elements
-    form.querySelectorAll('input, select, textarea, [contenteditable="true"]').forEach(el => {
-      el.classList.add('pdf-input');
-    });
-
-    // Get the full height of the form
-    const formHeight = form.scrollHeight;
-    const formWidth = form.offsetWidth;
-
-    // Create a temporary container
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.top = '0';
-    tempContainer.style.left = '0';
-    tempContainer.style.width = formWidth + 'px';
-    tempContainer.style.height = formHeight + 'px';
-    tempContainer.style.overflow = 'hidden';
-    tempContainer.style.pointerEvents = 'none';
-
-    // Clone the form and append it to the temporary container
-    const clonedForm = form.cloneNode(true);
-    tempContainer.appendChild(clonedForm);
-    document.body.appendChild(tempContainer);
-
-    // Delay to ensure everything is rendered properly
-    setTimeout(() => {
-      // Calculate aspect ratio
-      const aspectRatio = formHeight / formWidth;
-
-      // Set up PDF dimensions
-      const { jsPDF } = window.jspdf;
-      const pdfWidth = 210; // A4 width in mm
-      const pdfHeight = pdfWidth * aspectRatio;
-      const doc = new jsPDF({
-        orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
-        unit: 'mm',
-        format: [pdfWidth, pdfHeight]
-      });
-
-      html2canvas(tempContainer, {
-        scale: 1, // Reduced from 2 - this will cut size by ~75%
-        useCORS: true,
-        allowTaint: true,
-        height: formHeight,
-        windowHeight: formHeight,
-        quality: 0.8, // Add quality setting to reduce file size
-        backgroundColor: '#ffffff', // Ensure white background
-        onclone: function(clonedDoc) {
-                  
-          // Ensure text is visible in cloned inputs and contenteditable divs
-          clonedDoc.querySelectorAll('.pdf-input').forEach(el => {
-            if (el.getAttribute('contenteditable') === 'true') {
-              el.style.color = 'black';
-              el.style.fontSize = '14px'; // Slightly smaller font
-              // Ensure the content of the div is preserved
-              el.textContent = el.textContent;
-            } else if (el.value) {
-              el.style.color = 'black';
-              el.style.fontSize = '14px'; // Slightly smaller font
-            }
-          });
-        }
-      }).then(canvas => {
-        const imgData = canvas.toDataURL('image/jpeg', 0.7); // Use JPEG with 70% quality instead of PNG
+      console.log('Starting upload to function...');
+      console.log('PDF blob size:', pdfBlob.size);
+      console.log('PDF blob type:', pdfBlob.type);
+      
+      const maxSize = 10 * 1024 * 1024; // 10MB limit
+      if (pdfBlob.size > maxSize) {
+        alert(`PDF is too large (${Math.round(pdfBlob.size / 1024 / 1024)}MB). Maximum size is ${maxSize / 1024 / 1024}MB.`);
+        return;
+      }
+      
+      fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/pdf',
+        },
+        body: pdfBlob,
+      })
+      .then(response => {
+        console.log('Got response from function:', response.status, response.statusText);
+        console.log('Response ok:', response.ok);
+        console.log('Response headers:', [...response.headers.entries()]);
         
-        // Adjust PDF dimensions to be more reasonable
-        const maxPdfWidth = 210; // A4 width
-        const maxPdfHeight = 297; // A4 height
-        
-        let pdfWidth, pdfHeight;
-        if (aspectRatio > 1) {
-          // Tall document
-          pdfHeight = maxPdfHeight;
-          pdfWidth = maxPdfHeight / aspectRatio;
-        } else {
-          // Wide document  
-          pdfWidth = maxPdfWidth;
-          pdfHeight = maxPdfWidth * aspectRatio;
-        }
-        
-        const doc = new jsPDF({
-          orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
-          unit: 'mm',
-          format: [pdfWidth, pdfHeight],
-          compress: true // Enable PDF compression
-        });
-
-        doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'MEDIUM'); // Use MEDIUM compression
-        const fileName = `${machine.value}-${number.value}-${gang.value}-${date.value}.pdf`
-        //doc.save(fileName); can be added in if mechanics want copy downloaded
+        return response.text().then(text => {
+          console.log('Raw response text:', text);
           
-        // Convert the PDF to a Blob
-        const pdfBlob = doc.output('blob');
-
-        // Upload the PDF to Netlify function with improved error handling
-        console.log('Starting upload to function...');
-        console.log('PDF blob size:', pdfBlob.size);
-        console.log('PDF blob type:', pdfBlob.type);
-        
-        // Check if PDF is too large (Netlify functions have limits)
-        const maxSize = 10 * 1024 * 1024; // 10MB limit
-        if (pdfBlob.size > maxSize) {
-          alert(`PDF is too large (${Math.round(pdfBlob.size / 1024 / 1024)}MB). Maximum size is ${maxSize / 1024 / 1024}MB.`);
-          return;
-        }
-        
-        fetch(`/.netlify/functions/uploadfile?fileName=${encodeURIComponent(fileName)}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/pdf',
-          },
-          body: pdfBlob, // Back to sending the actual PDF
-        })
-        .then(response => {
-          console.log('Got response from function:', response.status, response.statusText);
-          console.log('Response ok:', response.ok);
-          console.log('Response headers:', [...response.headers.entries()]);
-          
-          // Try to get response as text first to see what we're getting
-          return response.text().then(text => {
-            console.log('Raw response text:', text);
-            
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}: ${text}`);
-            }
-            
-            // Try to parse as JSON
-            try {
-              return JSON.parse(text);
-            } catch (parseError) {
-              console.error('Failed to parse JSON:', parseError);
-              throw new Error(`Invalid JSON response: ${text}`);
-            }
-          });
-        })
-        .then(result => {
-          if (result.message === 'File uploaded successfully') {
-            alert('PDF uploaded to SharePoint successfully!');
-          } else {
-            throw new Error(result.error || 'Upload failed');
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${text}`);
           }
-        })
-        .catch(error => {
-          console.error('Upload error:', error);
-          alert('Error uploading PDF: ' + error.message);
+          
+          try {
+            return JSON.parse(text);
+          } catch (parseError) {
+            console.error('Failed to parse JSON:', parseError);
+            throw new Error(`Invalid JSON response: ${text}`);
+          }
         });
-        
-        // Remove the temporary container
-        document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
-      }).catch(error => {
-        console.error('Error in html2canvas operation:', error);
-        alert('An error occurred while generating the PDF. Please check the console for more details.');
-        
-        // Remove the temporary container in case of error
-        document.body.removeChild(tempContainer);
-        
-        // Remove custom class from original form elements
-        form.querySelectorAll('.pdf-input').forEach(el => {
-          el.classList.remove('pdf-input');
-        });
+      })
+      .then(result => {
+        if (result.message === 'File uploaded successfully') {
+          alert('PDF uploaded to SharePoint successfully!');
+        } else {
+          throw new Error(result.error || 'Upload failed');
+        }
+      })
+      .catch(error => {
+        console.error('Upload error:', error);
+        alert('Error uploading PDF to SharePoint: ' + error.message);
       });
-    }, 100); // Adjust the delay if necessary
+    });
   });
 });
